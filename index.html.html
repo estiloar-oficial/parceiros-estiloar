@@ -1,0 +1,2672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estilo AR — Portal Parceirão</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --azul:#0D2257;--azul2:#1565C0;--azul3:#29ABE2;--azul-bg:#E8F4FD;
+  --branco:#fff;--cinza:#F4F6F9;--borda:#E0E6EF;--txt2:#6B7A99;--txt:#1A2340;
+  --verde:#1D9E75;--amarelo:#F59E0B;--vermelho:#DC2626;
+}
+body{font-family:'Inter',sans-serif;background:var(--cinza);color:var(--txt)}
+
+/* LOGIN */
+#tela-login{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--azul),#1a3a7a,var(--azul2))}
+.login-card{background:#fff;border-radius:16px;padding:48px 40px;width:100%;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.login-marca{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px}
+.lm-icon{width:44px;height:44px;border-radius:10px;background:var(--azul);display:flex;align-items:center;justify-content:center}
+.lm-icon svg{width:24px;height:24px}
+.lm-nome{font-size:22px;font-weight:700;color:var(--azul);letter-spacing:-.5px}
+.login-titulo{font-size:16px;font-weight:600;color:var(--txt);margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--txt2);margin-bottom:28px}
+.campo-login{text-align:left;margin-bottom:16px}
+.campo-login label{font-size:12px;font-weight:600;color:var(--txt2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.campo-login input{width:100%;padding:12px 14px;border:1.5px solid var(--borda);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.campo-login input:focus{border-color:var(--azul3)}
+.btn-login{width:100%;padding:13px;background:var(--azul);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;font-family:inherit}
+.btn-login:hover{background:var(--azul2)}
+.login-erro{color:#e53e3e;font-size:13px;margin-top:10px;display:none}
+.login-badge{margin-top:24px;font-size:12px;color:var(--txt2)}
+
+/* NAVBAR */
+.navbar{background:var(--azul);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nb-marca{display:flex;align-items:center;gap:10px}
+.nb-icon{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center}
+.nb-icon svg{width:18px;height:18px}
+.nb-nome{color:#fff;font-size:15px;font-weight:700}
+.nb-div{color:rgba(255,255,255,.2);margin:0 4px}
+.nb-sec{color:rgba(255,255,255,.45);font-size:13px}
+.nb-links{display:flex;gap:4px}
+.nl{color:rgba(255,255,255,.65);font-size:13px;padding:6px 11px;border-radius:6px;cursor:pointer;font-weight:500;transition:all .15s;white-space:nowrap}
+.nl:hover,.nl.at{color:#fff;background:rgba(255,255,255,.1)}
+.nl.adm{background:rgba(41,171,226,.15);color:#29ABE2}
+.nb-right{display:flex;align-items:center;gap:10px}
+.ub{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border-radius:20px;padding:4px 12px 4px 4px}
+.uav{width:28px;height:28px;border-radius:50%;background:var(--azul3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.unm{font-size:12px;color:rgba(255,255,255,.8);font-weight:500}
+.sair{color:rgba(255,255,255,.5);font-size:12px;cursor:pointer;padding:4px 8px;border-radius:4px}
+.sair:hover{color:#fff}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--azul),#1a3a7a);padding:32px 24px 36px;border-bottom:3px solid var(--azul3)}
+.hero-in{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.htag{display:inline-flex;align-items:center;gap:6px;background:rgba(41,171,226,.15);border:1px solid rgba(41,171,226,.35);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--azul3);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em}
+.hdot{width:6px;height:6px;border-radius:50%;background:var(--azul3)}
+.hero h1{color:#fff;font-size:21px;font-weight:700;margin-bottom:6px}
+.hero-sub{color:rgba(255,255,255,.55);font-size:13px}
+.hstats{display:flex;gap:24px}
+.hsn{color:#fff;font-size:20px;font-weight:700;line-height:1}
+.hsl{color:rgba(255,255,255,.45);font-size:11px;margin-top:3px}
+
+/* CONTEÚDO */
+.conteudo{max-width:1000px;margin:0 auto;padding:24px 24px 60px}
+.stit{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.secao{margin-bottom:28px}
+
+/* CARDS */
+.card{background:#fff;border:1px solid var(--borda);border-radius:12px;overflow:hidden}
+.card-p{padding:18px 20px}
+
+/* SOBRE */
+.sobre-box{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:24px 28px;margin-bottom:28px}
+.sobre-titulo{font-size:18px;font-weight:700;color:var(--azul);margin-bottom:12px}
+.sobre-texto{font-size:14px;color:var(--txt);line-height:1.75}
+.sobre-sub{font-size:15px;font-weight:600;color:var(--txt);margin:18px 0 10px}
+.beneficios-lista{list-style:none;display:flex;flex-direction:column;gap:8px}
+.beneficios-lista li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--txt);line-height:1.5}
+.bli-dot{width:20px;height:20px;border-radius:50%;background:var(--azul-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.bli-dot svg{width:11px;height:11px;fill:var(--azul2)}
+
+/* KIT VISUAL */
+.kit-visual-card{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:24px 28px;margin-bottom:28px}
+.kv-titulo{font-size:16px;font-weight:700;color:var(--azul);margin-bottom:6px}
+.kv-sub{font-size:13px;color:var(--txt2);margin-bottom:18px}
+.kv-itens{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kv-item{background:var(--cinza);border:1px solid var(--borda);border-radius:10px;padding:16px;text-align:center}
+.kv-icon{font-size:28px;margin-bottom:8px}
+.kv-nome{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:2px}
+.kv-qtd{font-size:12px;color:var(--txt2)}
+
+/* GARANTIA */
+.garantia-card{background:linear-gradient(135deg,var(--azul),#1a3a7a);border-radius:12px;padding:24px 28px;margin-bottom:28px;display:flex;align-items:center;gap:24px}
+.gc-icon{font-size:48px;flex-shrink:0}
+.gc-titulo{color:#fff;font-size:16px;font-weight:700;margin-bottom:6px}
+.gc-texto{color:rgba(255,255,255,.7);font-size:13px;line-height:1.6}
+.gc-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(41,171,226,.2);border:1px solid rgba(41,171,226,.4);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--azul3);font-weight:600;margin-top:10px}
+
+/* CURSO */
+.curso-player{background:#0a0a12;position:relative;padding-bottom:56.25%;border-radius:12px 12px 0 0;overflow:hidden}
+.curso-player iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.curso-placeholder{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer}
+.cplay{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center}
+.cplay svg{width:20px;height:20px;fill:#fff;margin-left:3px}
+.chint{color:rgba(255,255,255,.45);font-size:12px}
+.curso-meta{padding:16px 20px}
+.curso-meta h3{font-size:15px;font-weight:600;color:var(--txt);margin-bottom:4px}
+.curso-meta p{font-size:13px;color:var(--txt2)}
+.curso-badges{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.cbadge{display:inline-flex;align-items:center;gap:5px;background:var(--azul-bg);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--azul2);font-weight:500}
+
+/* KITS LINHA */
+.linha-titulo{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--azul3);display:inline-block}
+.kits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.kit-card{background:#fff;border:1px solid var(--borda);border-radius:12px;overflow:hidden;transition:box-shadow .15s}
+.kit-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.kit-img{height:180px;background:var(--cinza);position:relative;overflow:hidden}
+.kit-carousel{display:flex;height:100%;transition:transform .35s ease;will-change:transform}
+.kit-carousel-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--cinza)}
+.kit-carousel-slide img{width:100%;height:100%;object-fit:contain;padding:8px}
+.kit-img-placeholder{font-size:40px}
+.kit-nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.35);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;z-index:2;transition:background .15s}
+.kit-nav:hover{background:rgba(0,0,0,.6)}
+.kit-nav.prev{left:6px}.kit-nav.next{right:6px}
+.kit-dots{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
+.kit-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);transition:background .2s;cursor:pointer}
+.kit-dot.at{background:#fff}
+.kit-foto-count{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.4);color:#fff;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
+.kit-info{padding:14px}
+.kit-nome{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:4px}
+.kit-preco-de{font-size:11px;color:var(--txt2);text-decoration:line-through}
+.kit-preco{font-size:16px;font-weight:700;color:var(--verde)}
+.kit-itens{margin-top:8px}
+.kit-item{font-size:12px;color:var(--txt2);display:flex;align-items:center;gap:4px}
+.kit-item::before{content:"•";color:var(--azul3)}
+
+/* TABELA PEÇAS */
+.pecas-section{margin-bottom:28px}
+.tabela-pecas-wrap{background:#fff;border:1px solid var(--borda);border-radius:12px;overflow:hidden}
+.tp-header{background:var(--azul);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.tp-titulo{color:#fff;font-size:14px;font-weight:600}
+.tp-precos{display:flex;gap:16px}
+.tp-de{color:rgba(255,255,255,.5);font-size:12px;text-decoration:line-through}
+.tp-por{color:#5DCAA5;font-size:15px;font-weight:700}
+table.tp{width:100%;border-collapse:collapse;font-size:13px}
+table.tp th{background:var(--cinza);padding:9px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--borda)}
+table.tp td{padding:10px 14px;border-bottom:1px solid var(--borda);color:var(--txt)}
+table.tp tr:last-child td{border-bottom:none}
+table.tp tr:hover td{background:var(--cinza)}
+.tp-cod{color:var(--txt2);font-size:12px}
+.tp-vkit{color:var(--verde);font-weight:600}
+.tp-total-row td{background:var(--azul);color:#fff;font-weight:600}
+.tp-total-row td.green{color:#5DCAA5}
+
+/* TREINAMENTOS */
+.mods-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.mod-card{background:#fff;border:1px solid var(--borda);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.mod-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.mod-thumb{height:80px;display:flex;align-items:center;justify-content:center;position:relative}
+.t1{background:linear-gradient(135deg,#0D2257,#1565C0)}.t2{background:linear-gradient(135deg,#0a3528,#1D9E75)}.t3{background:linear-gradient(135deg,#1a2340,#29ABE2)}.t4{background:linear-gradient(135deg,#3d1a00,#F59E0B)}.t5{background:linear-gradient(135deg,#2d0a3a,#9333EA)}
+.pBtn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center}
+.pBtn svg{width:14px;height:14px;fill:#fff;margin-left:2px}
+.mq{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.15);border-radius:4px;padding:2px 8px;font-size:10px;color:rgba(255,255,255,.8);font-weight:500}
+.mod-info{padding:12px 14px 14px}
+.mod-info h3{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:2px}
+.mod-st{font-size:11px;color:var(--txt2);margin-bottom:8px}
+.pb{height:3px;background:var(--borda);border-radius:2px}
+.pf{height:100%;border-radius:2px;background:var(--azul3)}
+
+/* PLAYER */
+.player-card{background:#fff;border:1px solid var(--borda);border-radius:12px;overflow:hidden;margin-bottom:24px}
+.pv{background:#0a0a12;position:relative;padding-bottom:56.25%}
+.pv iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.pv-ph{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.pbig{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center}
+.pbig svg{width:20px;height:20px;fill:#fff;margin-left:3px}
+.phint{color:rgba(255,255,255,.45);font-size:12px}
+.pm{padding:14px 16px}
+.pm h3{font-size:14px;font-weight:600;color:var(--txt);margin-bottom:3px}
+.pm p{font-size:12px;color:var(--txt2)}
+.vlista{background:#fff;border:1px solid var(--borda);border-radius:12px;overflow:hidden}
+.vl-head{padding:12px 16px;border-bottom:1px solid var(--borda);font-size:13px;font-weight:600;color:var(--txt)}
+.vli{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--borda);cursor:pointer;transition:background .15s}
+.vli:last-child{border-bottom:none}
+.vli:hover{background:var(--cinza)}
+.vli.at{background:var(--azul-bg)}
+.vn{width:26px;height:26px;border-radius:7px;background:var(--cinza);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--txt2);flex-shrink:0}
+.vn.at{background:var(--azul3);color:#fff}
+.vt{font-size:13px;font-weight:500;color:var(--txt);flex:1}
+.vp{width:22px;height:22px;border-radius:50%;background:var(--azul3);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.vp svg{width:9px;height:9px;fill:#fff;margin-left:1px}
+.vli:hover .vp{opacity:1}
+
+/* INFO CARDS */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.ic{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:18px;display:flex;gap:14px;align-items:flex-start;cursor:pointer;transition:box-shadow .15s}
+.ic:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.icn{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ica{background:var(--azul-bg)}.icv{background:#E1F5EE}.icam{background:#FFFBEB}
+.icn svg{width:18px;height:18px}
+.ic h4{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:3px}
+.ic p{font-size:12px;color:var(--txt2);line-height:1.5}
+
+/* AVISOS */
+.av-card{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.av-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.av-novo{background:var(--azul3)}.av-info{background:var(--verde)}
+.av-txt h5{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:2px}
+.av-txt p{font-size:12px;color:var(--txt2)}
+.av-data{margin-left:auto;font-size:11px;color:var(--txt2);white-space:nowrap}
+
+/* ADMIN */
+#tela-admin{display:none}
+.aw{max-width:1000px;margin:0 auto;padding:24px}
+.atabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid var(--borda)}
+.atab{padding:10px 16px;font-size:13px;font-weight:500;color:var(--txt2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.atab.at{color:var(--azul);border-bottom-color:var(--azul3)}
+.ash{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.ati{font-size:18px;font-weight:700;color:var(--txt)}
+.asu{font-size:13px;color:var(--txt2);margin-top:2px}
+.btn{background:var(--azul);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;transition:background .2s}
+.btn:hover{background:var(--azul2)}
+.btn.g{background:var(--verde)}.btn.g:hover{background:#0f6e56}
+.btn.sm{padding:6px 12px;font-size:12px}
+.btn.out{background:transparent;border:1px solid var(--borda);color:var(--txt2)}.btn.out:hover{background:var(--cinza)}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.sc{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:14px 16px}
+.sl{font-size:11px;color:var(--txt2);font-weight:500;margin-bottom:4px}
+.sn{font-size:22px;font-weight:700;color:var(--txt)}
+.sg{color:var(--verde)}.sam{color:var(--amarelo)}
+
+/* TABELA MEMBROS */
+.tw{background:#fff;border:1px solid var(--borda);border-radius:12px;overflow:hidden}
+.tb-bar{padding:12px 16px;border-bottom:1px solid var(--borda);display:flex;gap:10px}
+.bsc{flex:1;position:relative}
+.bsc input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--borda);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.bsc-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px}
+.flt select{padding:8px 12px;border:1px solid var(--borda);border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:#fff}
+table.tb{width:100%;border-collapse:collapse}
+table.tb thead{background:var(--cinza)}
+table.tb th{padding:9px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--borda)}
+table.tb td{padding:11px 14px;font-size:13px;color:var(--txt);border-bottom:1px solid var(--borda);vertical-align:middle}
+table.tb tr:last-child td{border-bottom:none}
+table.tb tr:hover td{background:var(--cinza)}
+.mc{display:flex;align-items:center;gap:10px}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.a1{background:#DBEAFE;color:#1e40af}.a2{background:#D1FAE5;color:#065f46}.a3{background:#FEF3C7;color:#92400e}.a4{background:#FCE7F3;color:#9d174d}.a5{background:#EDE9FE;color:#4c1d95}
+.mn{font-size:13px;font-weight:500;color:var(--txt)}
+.me{font-size:11px;color:var(--txt2)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.ba{background:#D1FAE5;color:#065f46}.bp{background:#FEF3C7;color:#92400e}.bi{background:var(--cinza);color:var(--txt2)}
+.bdot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.acs{display:flex;gap:6px}
+.ba-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--borda);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.ba-btn:hover{background:var(--cinza)}
+.ba-btn.d:hover{background:#FEE2E2;border-color:#FCA5A5}
+.ba-btn.tog{background:transparent}
+.ba-btn.tog.ativo:hover{background:#FEF3C7;border-color:#F59E0B}
+.ba-btn.tog.inativo:hover{background:#D1FAE5;border-color:#1D9E75}
+.ba-btn svg{width:13px;height:13px}
+.pag{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--borda)}
+.pi{font-size:12px;color:var(--txt2)}
+.pbs{display:flex;gap:4px}
+.pb-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--borda);background:transparent;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pb-btn.at{background:var(--azul);color:#fff;border-color:var(--azul)}
+
+/* ADMIN CONTEÚDO */
+.mac{background:#fff;border:1px solid var(--borda);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.mah{padding:14px 18px;display:flex;align-items:center;gap:12px}
+.mac-cor{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.mac-nm{font-size:14px;font-weight:600;color:var(--txt);flex:1}
+.mac-qt{font-size:12px;color:var(--txt2)}
+.mac-acs{display:flex;gap:6px}
+.mab{border-top:1px solid var(--borda)}
+.vrow{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid var(--borda)}
+.vrow:last-child{border-bottom:none}
+.vnum{width:22px;height:22px;border-radius:6px;background:var(--cinza);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--txt2);flex-shrink:0}
+.vi{flex:1}
+.vt2{font-size:13px;font-weight:500;color:var(--txt)}
+.vl2{font-size:11px;color:var(--azul3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:280px}
+.add-v{display:flex;align-items:center;gap:6px;padding:10px 18px;font-size:13px;color:var(--azul2);cursor:pointer;font-weight:500;background:transparent;border:none;font-family:inherit}
+.add-v:hover{color:var(--azul)}
+
+/* ADMIN KITS */
+.linha-admin{background:#fff;border:1px solid var(--borda);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.la-head{padding:14px 18px;display:flex;align-items:center;gap:12px;background:var(--cinza);border-bottom:1px solid var(--borda)}
+.la-nm{font-size:14px;font-weight:700;color:var(--txt);flex:1}
+.la-acs{display:flex;gap:8px}
+.kit-admin-row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--borda)}
+.kit-admin-row:last-child{border-bottom:none}
+.kar-img{width:44px;height:44px;border-radius:8px;background:var(--cinza);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.kar-info{flex:1}
+.kar-nm{font-size:13px;font-weight:600;color:var(--txt)}
+.kar-pr{font-size:12px;color:var(--verde);font-weight:600}
+.kar-itens{font-size:11px;color:var(--txt2)}
+
+/* ADMIN PEÇAS */
+.peca-admin-wrap{background:#fff;border:1px solid var(--borda);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.pa-head{background:var(--azul);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.pa-nm{color:#fff;font-size:14px;font-weight:600}
+table.pa{width:100%;border-collapse:collapse;font-size:13px}
+table.pa th{background:var(--cinza);padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--borda)}
+table.pa td{padding:9px 12px;border-bottom:1px solid var(--borda);color:var(--txt)}
+table.pa tr:last-child td{border-bottom:none}
+table.pa tr:hover td{background:var(--cinza)}
+.pa-cod{color:var(--txt2);font-size:11px}
+.pa-vkit{color:var(--verde);font-weight:600}
+.pa-add{display:flex;align-items:center;gap:6px;padding:10px 16px;font-size:13px;color:var(--azul2);cursor:pointer;font-weight:500;background:transparent;border:none;font-family:inherit}
+
+/* ADMIN TEXTOS */
+.texto-admin-card{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:20px;margin-bottom:14px}
+.ta-label{font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.ta-input{width:100%;padding:10px 12px;border:1.5px solid var(--borda);border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:vertical;min-height:80px}
+.ta-input:focus{border-color:var(--azul3)}
+.ta-acs{display:flex;justify-content:flex-end;margin-top:10px;gap:8px}
+
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
+.mo.ab{display:flex}
+.modal{background:#fff;border-radius:16px;padding:26px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:700;color:var(--txt);margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--txt2);margin-bottom:18px}
+.campo{margin-bottom:13px}
+.campo label{font-size:12px;font-weight:600;color:var(--txt2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.campo input,.campo select,.campo textarea{width:100%;padding:9px 12px;border:1.5px solid var(--borda);border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:vertical}
+.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--azul3)}
+.campo-hint{font-size:11px;color:var(--txt2);margin-top:4px}
+.modal-acs{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.btn-can{background:transparent;border:1px solid var(--borda);border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;color:var(--txt2);font-family:inherit}
+
+/* TOAST */
+.social-bar{position:fixed;bottom:0;left:0;right:0;background:var(--azul);height:38px;display:flex;align-items:center;justify-content:center;gap:24px;z-index:90;border-top:2px solid var(--azul3)}
+.social-link{display:flex;align-items:center;gap:7px;color:rgba(255,255,255,.7);font-size:12px;font-weight:500;text-decoration:none;transition:color .15s}
+.social-link:hover{color:#fff}
+.social-link svg{width:16px;height:16px;flex-shrink:0}
+.conteudo{max-width:1000px;margin:0 auto;padding:24px 24px 70px}
+.pecas-section{margin-bottom:24px}
+.tabela-pecas-wrap{background:#fff;border:1px solid var(--borda);border-radius:12px;overflow:hidden}
+.tp-header{background:var(--azul);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.tp-titulo{color:#fff;font-size:14px;font-weight:600}
+.tp-precos{display:flex;gap:16px;align-items:center}
+.tp-de{color:rgba(255,255,255,.5);font-size:12px;text-decoration:line-through}
+.tp-por{color:#5DCAA5;font-size:15px;font-weight:700}
+table.tp{width:100%;border-collapse:collapse;font-size:13px}
+table.tp th{background:var(--cinza);padding:9px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--borda)}
+table.tp td{padding:10px 14px;border-bottom:1px solid var(--borda);color:var(--txt)}
+table.tp tr:last-child td{border-bottom:none}
+table.tp tr:hover td{background:var(--cinza)}
+.tp-cod{color:var(--txt2);font-size:12px}
+.tp-vkit{color:var(--verde);font-weight:600}
+.tp-total-row td{background:var(--azul);color:#fff;font-weight:600}
+.tp-total-row td.green{color:#5DCAA5}
+.peca-admin-wrap{background:#fff;border:1px solid var(--borda);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.pa-head{background:var(--azul);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.pa-nm{color:#fff;font-size:14px;font-weight:600}
+table.pa{width:100%;border-collapse:collapse;font-size:13px}
+table.pa th{background:var(--cinza);padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--borda)}
+table.pa td{padding:9px 12px;border-bottom:1px solid var(--borda);color:var(--txt)}
+table.pa tr:last-child td{border-bottom:none}
+table.pa tr:hover td{background:var(--cinza)}
+.pa-cod{color:var(--txt2);font-size:11px}
+.pa-vkit{color:var(--verde);font-weight:600}
+.pa-add{display:flex;align-items:center;gap:6px;padding:10px 16px;font-size:13px;color:var(--azul2);cursor:pointer;font-weight:500;background:transparent;border:none;font-family:inherit}
+.kv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kv-card{background:#fff;border:1px solid var(--borda);border-radius:12px;overflow:hidden;transition:box-shadow .15s}
+.kv-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.kv-card-foto{width:100%;aspect-ratio:2/3;background:var(--cinza);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.kv-card-foto img{width:100%;height:100%;object-fit:cover}
+.kv-card-foto-placeholder{font-size:36px;color:var(--txt2)}
+.kv-card-info{padding:12px 14px}
+.kv-card-nm{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:3px}
+.kv-card-desc{font-size:12px;color:var(--txt2);line-height:1.5}
+.kv-adm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kv-adm-card{background:#fff;border:1px solid var(--borda);border-radius:12px;overflow:hidden}
+.kv-adm-foto{width:100%;aspect-ratio:2/3;background:var(--cinza);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.kv-adm-foto img{width:100%;height:100%;object-fit:cover}
+.kv-adm-info{padding:12px 14px;border-top:1px solid var(--borda)}
+.kv-adm-nm{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:2px}
+.kv-adm-desc{font-size:11px;color:var(--txt2);margin-bottom:10px}
+.kv-adm-acs{display:flex;gap:6px}
+.vp-thumb{position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer;z-index:2}
+.vp-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.vp-thumb-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;transition:background .2s}
+.vp-thumb:hover .vp-thumb-overlay{background:rgba(0,0,0,.45)}
+.vp-play-circle{width:64px;height:64px;border-radius:50%;background:rgba(255,0,0,.9);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:transform .2s}
+.vp-thumb:hover .vp-play-circle{transform:scale(1.1)}
+.vp-play-circle svg{width:24px;height:24px;fill:#fff;margin-left:4px}
+@keyframes glowRotate{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+@keyframes glowPulse{
+  0%,100%{opacity:.7;box-shadow:0 0 8px 2px #29ABE2,0 0 20px 4px rgba(41,171,226,.4)}
+  50%{opacity:1;box-shadow:0 0 16px 4px #29ABE2,0 0 40px 10px rgba(41,171,226,.6),0 0 60px 15px rgba(13,34,87,.4)}
+}
+.video-glow-wrap{position:relative;border-radius:12px;padding:3px;background:linear-gradient(270deg,#29ABE2,#0D2257,#29ABE2,#1565C0,#29ABE2);background-size:400% 400%;animation:glowRotate 3s ease infinite;box-shadow:0 0 12px 3px rgba(41,171,226,.5);overflow:hidden}
+.video-glow-wrap::before{content:'';position:absolute;inset:0;border-radius:12px;animation:glowPulse 2s ease-in-out infinite;pointer-events:none;z-index:1}
+.video-glow-inner{border-radius:10px;overflow:hidden;position:relative;z-index:0}
+.toast{position:fixed;bottom:48px;right:24px;background:#1A2340;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="tela-login">
+  <div class="login-card">
+    <div class="login-marca">
+      <div class="lm-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#29ABE2" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <span class="lm-nome">Estilo AR</span>
+    </div>
+    <div class="login-titulo">Portal Parceirão</div>
+    <div class="login-sub">Área exclusiva para parceiros autorizados</div>
+    <div class="campo-login"><label>E-mail</label><input type="email" id="ei" placeholder="seu@email.com.br"></div>
+    <div class="campo-login"><label>Senha</label><input type="password" id="si" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="btn-login" onclick="login()">Entrar no portal</button>
+    <div class="login-erro" id="lerro">E-mail ou senha incorretos.</div>
+    <div class="login-badge">🔒 Acesso restrito a parceiros autorizados Estilo AR</div>
+  </div>
+</div>
+
+<!-- PORTAL PARCEIRO -->
+<div id="tela-portal" style="display:none">
+  <nav class="navbar">
+    <div class="nb-marca">
+      <div class="nb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#29ABE2" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <span class="nb-nome">Estilo AR</span><span class="nb-div">·</span><span class="nb-sec">Parceirão</span>
+    </div>
+    <div class="nb-links">
+      <span class="nl at" onclick="aba('sobre',this)">Sobre</span>
+      <span class="nl" onclick="aba('beneficios',this)">Benefícios</span>
+
+      <span class="nl" onclick="aba('pecas',this)">Peças</span>
+      <span class="nl" onclick="aba('curso',this)">Curso</span>
+      <span class="nl" onclick="aba('treinamentos',this)">Treinamentos</span>
+      <span class="nl" onclick="aba('servicos',this)">Serviços</span>
+      <span class="nl" onclick="aba('suporte',this)">Suporte</span>
+      <span class="nl adm" id="btn-admin" onclick="irAdmin()" style="display:none">⚙ Admin</span>
+    </div>
+    <div class="nb-right">
+      <div class="ub"><div class="uav" id="uav">JS</div><span class="unm" id="unm">João Silva</span></div>
+      <span class="sair" onclick="logout()">Sair</span>
+    </div>
+  </nav>
+  <div class="hero">
+    <div class="hero-in">
+      <div>
+        <div class="htag"><span class="hdot"></span> Parceiro autorizado</div>
+        <h1 id="htit">Bem-vindo, João</h1>
+        <div class="hero-sub" id="hsub">Acesse todos os benefícios exclusivos do Projeto Parceirão Estilo AR.</div>
+      </div>
+
+    </div>
+  </div>
+  <div class="conteudo">
+
+    <!-- ABA SOBRE -->
+    <div id="aba-sobre">
+      <div class="video-glow-wrap secao" style="overflow:hidden" id="vp-sobre" style="overflow:hidden">
+        <div style="background:#0a0a12;position:relative;padding-bottom:56.25%" id="vp-cont-sobre">
+          <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px" id="vp-ph-sobre">
+            <div class="cplay"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div>
+            <div class="chint">Mensagem de boas-vindas do Gestor</div>
+          </div>
+        </div>
+      </div>
+      <div class="sobre-box">
+        <div class="sobre-titulo" id="txt-sobre-titulo">O Projeto Parceirão Estilo AR</div>
+        <div class="sobre-texto" id="txt-sobre-corpo">O Projeto Parceirão Estilo AR nasce com o propósito de formar uma rede nacional de assistências técnicas autorizadas, preparada para atender com excelência a instalação, manutenção e suporte dos nossos equipamentos. A iniciativa foi criada para profissionais e empresas que desejam ampliar seu portfólio, aumentar sua autoridade no mercado e trabalhar diretamente com uma marca reconhecida por inovação e qualidade em ar-condicionado automotivo elétrico.
+
+Como Parceiro Autorizado, sua empresa passa a fazer parte de um ecossistema que valoriza a capacitação, o atendimento responsável e o crescimento mútuo. Além de executar serviços oficiais, o parceiro também pode vender o Ar-Condicionado Elétrico Estilo AR, Geladeiras Portáteis e nossos Geradores Automotivos, ampliando suas oportunidades de faturamento e fortalecendo sua presença regional.</div>
+        <div class="sobre-sub" id="txt-sobre-sub">O que é o Projeto Parceirão Estilo AR?</div>
+        <div class="sobre-texto" id="txt-sobre-desc">Um programa oficial que credencia assistências técnicas autorizadas e empresas do setor automotivo para representar nossa marca. A Rede Credenciada Estilo AR é a forma que encontramos de estar ainda mais próxima dos nossos clientes, garantindo atendimento qualificado em todo o Brasil.</div>
+      </div>
+    </div>
+
+    <!-- ABA BENEFÍCIOS -->
+    <div id="aba-beneficios" style="display:none">
+      <div class="video-glow-wrap secao" style="overflow:hidden" id="vp-beneficios" style="overflow:hidden">
+        <div style="background:#0a0a12;position:relative;padding-bottom:56.25%" id="vp-cont-beneficios">
+          <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px" id="vp-ph-beneficios">
+            <div class="cplay"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div>
+            <div class="chint">Gestor explicando os benefícios exclusivos</div>
+          </div>
+        </div>
+      </div>
+      <div class="secao">
+        <div class="stit">Principais benefícios exclusivos</div>
+        <div class="sobre-box">
+          <ul class="beneficios-lista" id="lista-beneficios">
+            <li><div class="bli-dot"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" stroke="#1565C0" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Acesso ao curso online de manutenção em ar-condicionado automotivo, válido por 1 ano.</li>
+            <li><div class="bli-dot"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" stroke="#1565C0" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Suporte técnico direto com nossa equipe de engenharia e especialistas.</li>
+            <li><div class="bli-dot"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" stroke="#1565C0" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Condições especiais para compra dos produtos.</li>
+            <li><div class="bli-dot"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" stroke="#1565C0" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Possibilidade de aparecer em nossa lista oficial de autorizados, aumentando visibilidade e confiança.</li>
+            <li><div class="bli-dot"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" stroke="#1565C0" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Participação em treinamentos, lives técnicas e atualizações constantes.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="secao">
+        <div class="stit">Kit visual gratuito</div>
+        <div class="kit-visual-card">
+          <div class="kv-titulo" id="txt-kv-titulo">Kit Visual Completo — GRÁTIS ao ingressar</div>
+          <div class="kv-sub" id="txt-kv-sub">Ao ingressar na nossa Rede Autorizada, o parceiro já recebe um Kit Visual completo GRÁTIS, preparado para fortalecer sua presença profissional.</div>
+          <div class="kv-grid" id="kv-items-view"></div>
+        </div>
+      </div>
+      <div class="secao">
+        <div class="stit">Garantia estendida bônus</div>
+        <div class="garantia-card">
+          <div class="gc-icon">🛡️</div>
+          <div>
+            <div class="gc-titulo" id="txt-gar-titulo">A cada 10 aparelhos, ganhe 3 garantias estendidas!</div>
+            <div class="gc-texto" id="txt-gar-corpo">A cada 10 aparelhos de ar-condicionado adquiridos, o parceiro recebe 3 garantias estendidas de 1 ano totalmente gratuitas para oferecer aos seus clientes como um diferencial exclusivo. Essa vantagem agrega valor ao serviço, aumenta a confiança do consumidor e fortalece ainda mais a atuação do parceiro no mercado.</div>
+            <div class="gc-badge">🎁 10 aparelhos = 3 garantias estendidas grátis</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- ABA PEÇAS -->
+    <div id="aba-pecas" style="display:none">
+      <div class="video-glow-wrap secao" style="overflow:hidden" id="vp-pecas" style="overflow:hidden">
+        <div style="background:#0a0a12;position:relative;padding-bottom:56.25%" id="vp-cont-pecas">
+          <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px" id="vp-ph-pecas">
+            <div class="cplay"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div>
+            <div class="chint">Gestor apresentando a tabela de peças exclusivas</div>
+          </div>
+        </div>
+      </div>
+      <div id="render-pecas"></div>
+    </div>
+
+    <!-- ABA CURSO -->
+    <div id="aba-curso" style="display:none">
+      <div class="secao">
+        <div class="stit">Curso online de manutenção</div>
+        <div class="card">
+          <div class="curso-player" id="curso-player-cont">
+            <div class="curso-placeholder" id="curso-ph">
+              <div class="cplay"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div>
+              <div class="chint" id="curso-hint-txt">Vídeo de apresentação do curso</div>
+            </div>
+          </div>
+          <div class="curso-meta">
+            <h3 id="txt-curso-titulo">Curso Online de Manutenção — Ar-Condicionado Automotivo</h3>
+            <p id="txt-curso-desc">Todos os parceiros autorizados Estilo AR recebem acesso exclusivo ao nosso curso online de manutenção em ar-condicionado automotivo. O curso oferece um ano completo de aprendizado, atualizações contínuas e suporte técnico direto da nossa equipe. Acesso ilimitado para toda a equipe!</p>
+            <div class="curso-badges">
+              <span class="cbadge">📅 1 ano de acesso</span>
+              <span class="cbadge">👥 Equipe ilimitada</span>
+              <span class="cbadge">🔄 Atualizações contínuas</span>
+              <span class="cbadge">🎓 Suporte técnico direto</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA TREINAMENTOS -->
+    <div id="aba-treinamentos" style="display:none">
+      <div class="video-glow-wrap secao" style="overflow:hidden" id="vp-treinamentos" style="overflow:hidden">
+        <div style="background:#0a0a12;position:relative;padding-bottom:56.25%" id="vp-cont-treinamentos">
+          <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px" id="vp-ph-treinamentos">
+            <div class="cplay"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div>
+            <div class="chint">Gestor apresentando os módulos de treinamento</div>
+          </div>
+        </div>
+      </div>
+      <div class="secao">
+        <div class="stit">Módulos de treinamento</div>
+        <div class="mods-grid" id="mods-parceiro"></div>
+      </div>
+      <div id="area-player" style="display:none">
+        <div class="stit" id="pl-mod-nm">Módulo</div>
+        <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
+          <div class="player-card">
+            <div class="pv" id="pl-cont"><div class="pv-ph"><div class="pbig"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div><div class="phint">Selecione um vídeo</div></div></div>
+            <div class="pm"><h3 id="pl-tit">Selecione um vídeo</h3><p id="pl-sub">Clique na lista ao lado</p></div>
+          </div>
+          <div class="vlista">
+            <div class="vl-head" id="vl-head">Vídeos</div>
+            <div id="vl-items"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA SERVIÇOS -->
+    <div id="aba-servicos" style="display:none">
+
+      <!-- Vídeo do gestor -->
+      <div class="video-glow-wrap secao" style="overflow:hidden" id="vp-servicos" style="overflow:hidden">
+        <div style="background:#0a0a12;position:relative;padding-bottom:56.25%" id="vp-cont-servicos">
+          <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px" id="vp-ph-servicos">
+            <div class="cplay"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div>
+            <div class="chint">Gestor apresentando a tabela de serviços</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela de precificação -->
+      <div class="secao">
+        <div class="stit">Tabela de precificação — Mão de obra</div>
+        <div id="render-servicos"></div>
+      </div>
+
+      <!-- Ficha de garantia -->
+      <div class="secao">
+        <div class="stit">Ficha de garantia</div>
+        <div id="garantia-download-area">
+          <div style="background:#fff;border:1px solid var(--borda);border-radius:12px;padding:20px 24px;display:flex;align-items:center;gap:16px">
+            <div style="width:48px;height:48px;border-radius:12px;background:#FEE2E2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#DC2626"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:600;color:var(--txt);margin-bottom:3px">Ficha de Garantia Estilo AR</div>
+              <div style="font-size:12px;color:var(--txt2)" id="garantia-info">Clique no botão para baixar o arquivo</div>
+            </div>
+            <a id="garantia-btn" href="#" download style="background:var(--azul);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Baixar ficha
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ABA SUPORTE -->
+    <div id="aba-suporte" style="display:none">
+      <div class="stit">Suporte técnico</div>
+      <div class="info-grid">
+        <div class="ic"><div class="icn ica"><svg viewBox="0 0 24 24" fill="#1565C0"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg></div><div><h4>Telefone</h4><p id="txt-tel">(11) 3000-0000<br>Seg–Sex, 8h às 18h</p></div></div>
+        <div class="ic"><div class="icn icv"><svg viewBox="0 0 24 24" fill="#0F6E56"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div><div><h4>E-mail técnico</h4><p id="txt-email">suporte@estiloar.com.br<br>Resposta em até 24h</p></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="tela-admin">
+  <nav class="navbar">
+    <div class="nb-marca">
+      <div class="nb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#29ABE2" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <span class="nb-nome">Estilo AR</span><span class="nb-div">·</span><span class="nb-sec">Admin</span>
+    </div>
+    <div class="nb-links">
+      <span class="nl at" onclick="abaAdm('membros',this)">Membros</span>
+      <span class="nl" onclick="abaAdm('conteudo',this)">Treinamentos</span>
+
+
+      <span class="nl" onclick="abaAdm('pecas-adm',this)">Peças</span>
+      <span class="nl" onclick="abaAdm('servicos-adm',this)">Serviços</span>
+      <span class="nl" onclick="abaAdm('videos-adm',this)">🎬 Vídeos</span>
+      <span class="nl" onclick="abaAdm('textos',this)">Textos</span>
+    </div>
+    <div class="nb-right">
+      <span class="sair" onclick="irPortal()">← Portal</span>
+      <span class="sair" onclick="logout()">Sair</span>
+    </div>
+  </nav>
+  <div class="aw">
+
+    <!-- MEMBROS -->
+    <div id="adm-membros">
+      <div class="ash"><div><div class="ati">Membros</div><div class="asu">Gerencie os parceiros autorizados</div></div><button class="btn" onclick="abrirMo('mo-membro')">+ Adicionar membro</button></div>
+      <div class="sg">
+        <div class="sc"><div class="sl">Total</div><div class="sn" id="tot-total">5</div></div>
+        <div class="sc"><div class="sl">Ativos</div><div class="sn" style="color:var(--verde)" id="tot-at">3</div></div>
+        <div class="sc"><div class="sl">Pendentes</div><div class="sn" style="color:var(--amarelo)" id="tot-pend">1</div></div>
+        <div class="sc"><div class="sl">Inativos</div><div class="sn" id="tot-in">1</div></div>
+      </div>
+      <div class="tw">
+        <div class="tb-bar">
+          <div class="bsc"><svg class="bsc-ico" viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Buscar..." oninput="filtMembros(this.value)"></div>
+          <div class="flt"><select onchange="filtStatus(this.value)"><option value="">Todos</option><option value="ativo">Ativo</option><option value="pendente">Pendente</option><option value="inativo">Inativo</option></select></div>
+        </div>
+        <table class="tb">
+          <thead><tr><th style="width:32%">Membro</th><th style="width:22%">Empresa</th><th style="width:14%">Status</th><th style="width:16%">Desde</th><th>Ações</th></tr></thead>
+          <tbody id="tb-membros">
+            <tr data-status="ativo"><td><div class="mc"><div class="av a1">CM</div><div><div class="mn">Carlos Mendes</div><div class="me">carlos@techfix.com.br</div></div></div></td><td>TechFix Ltda</td><td><span class="badge ba"><span class="bdot"></span>Ativo</span></td><td>Jan 2024</td><td><div class="acs"><button class="ba-btn tog ativo" onclick="toggleStatus(this)" title="Desativar acesso"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button><button class="ba-btn d" onclick="remMembro(this)" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></div></td></tr>
+            <tr data-status="ativo"><td><div class="mc"><div class="av a2">AP</div><div><div class="mn">Ana Paula Souza</div><div class="me">ana@eletronic.com.br</div></div></div></td><td>Eletronic Sul</td><td><span class="badge ba"><span class="bdot"></span>Ativo</span></td><td>Mar 2024</td><td><div class="acs"><button class="ba-btn tog ativo" onclick="toggleStatus(this)" title="Desativar acesso"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button><button class="ba-btn d" onclick="remMembro(this)" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></div></td></tr>
+            <tr data-status="pendente"><td><div class="mc"><div class="av a3">RL</div><div><div class="mn">Roberto Lima</div><div class="me">roberto@assistech.com.br</div></div></div></td><td>AssisTech SP</td><td><span class="badge bp"><span class="bdot"></span>Pendente</span></td><td>Jun 2024</td><td><div class="acs"><button class="ba-btn tog ativo" onclick="toggleStatus(this)" title="Desativar acesso"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button><button class="ba-btn d" onclick="remMembro(this)" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></div></td></tr>
+            <tr data-status="ativo"><td><div class="mc"><div class="av a4">FC</div><div><div class="mn">Fernanda Costa</div><div class="me">fernanda@repairpro.com.br</div></div></div></td><td>RepairPro</td><td><span class="badge ba"><span class="bdot"></span>Ativo</span></td><td>Abr 2024</td><td><div class="acs"><button class="ba-btn tog ativo" onclick="toggleStatus(this)" title="Desativar acesso"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button><button class="ba-btn d" onclick="remMembro(this)" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></div></td></tr>
+            <tr data-status="inativo"><td><div class="mc"><div class="av a5">MO</div><div><div class="mn">Marcos Oliveira</div><div class="me">marcos@fixcenter.com.br</div></div></div></td><td>Fix Center</td><td><span class="badge bi"><span class="bdot"></span>Inativo</span></td><td>Fev 2024</td><td><div class="acs"><button class="ba-btn tog inativo" onclick="toggleStatus(this)" title="Reativar acesso"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button><button class="ba-btn d" onclick="remMembro(this)" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></div></td></tr>
+          </tbody>
+        </table>
+        <div class="pag"><span class="pi" id="pag-inf">Mostrando 1–5 de 5</span><div class="pbs"><button class="pb-btn">‹</button><button class="pb-btn at">1</button><button class="pb-btn">›</button></div></div>
+      </div>
+    </div>
+
+    <!-- TREINAMENTOS ADMIN -->
+    <div id="adm-conteudo" style="display:none">
+      <div class="ash"><div><div class="ati">Módulos e vídeos</div><div class="asu">Gerencie os treinamentos dos parceiros</div></div><button class="btn" onclick="abrirMo('mo-modulo')">+ Novo módulo</button></div>
+      <div id="lista-mods"></div>
+    </div>
+
+
+
+    <!-- SERVIÇOS ADMIN -->
+    <div id="adm-servicos-adm" style="display:none">
+      <div class="ash">
+        <div><div class="ati">Serviços</div><div class="asu">Gerencie a tabela de mão de obra e a ficha de garantia</div></div>
+        <button class="btn" onclick="abrirMo('mo-servico')">+ Novo serviço</button>
+      </div>
+
+      <!-- Tabela admin -->
+      <div class="tabela-wrap" style="margin-bottom:24px">
+        <table class="tb">
+          <thead><tr><th style="width:50%">Serviço</th><th style="width:20%">Valor</th><th style="width:15%">Código</th><th style="width:15%">Ações</th></tr></thead>
+          <tbody id="tb-servicos"></tbody>
+        </table>
+        <div style="padding:12px 16px;border-top:1px solid var(--borda)">
+          <button class="pa-add" onclick="abrirMo('mo-servico')">+ Adicionar serviço</button>
+        </div>
+      </div>
+
+      <!-- Upload ficha de garantia -->
+      <div class="texto-admin-card">
+        <div class="ta-label">📄 Ficha de garantia — Upload do arquivo</div>
+        <div id="garantia-upload-preview" style="margin-bottom:10px;display:none">
+          <div style="display:flex;align-items:center;gap:10px;background:var(--cinza);border-radius:8px;padding:10px 14px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#DC2626"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+            <span id="garantia-filename" style="font-size:13px;color:var(--txt);font-weight:500"></span>
+            <span style="font-size:11px;color:var(--verde);margin-left:auto">✅ Arquivo carregado</span>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;background:var(--cinza);border:1.5px dashed var(--borda);border-radius:8px;padding:14px 18px;cursor:pointer;font-size:13px;color:var(--txt2)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Clique para fazer upload da ficha de garantia (PDF)
+          <input type="file" accept="application/pdf" style="display:none" onchange="uploadGarantia(this)">
+        </label>
+        <div class="campo-hint">Após o upload, o botão "Baixar ficha" na área do parceiro ficará disponível automaticamente.</div>
+      </div>
+    </div>
+
+    <!-- PEÇAS ADMIN -->
+    <div id="adm-pecas-adm" style="display:none">
+      <div class="ash"><div><div class="ati">Tabela de peças</div><div class="asu">Gerencie os kits de peças com preços exclusivos para parceiros</div></div><button class="btn" onclick="abrirMo('mo-kit-peca')">+ Novo kit de peças</button></div>
+      <div id="lista-kits-peca"></div>
+    </div>
+
+    <!-- VÍDEOS ADMIN -->
+    <div id="adm-videos-adm" style="display:none">
+      <div class="ash"><div><div class="ati">Vídeos do Gestor</div><div class="asu">Configure os vídeos de apresentação exibidos em cada seção do portal</div></div></div>
+      <div class="texto-admin-card">
+        <div class="ta-label">🎬 Vídeo — Aba Sobre (Boas-vindas)</div>
+        <input class="ta-input" style="min-height:auto" id="ed-vp-sobre" placeholder="https://youtube.com/watch?v=...">
+        <div class="campo-hint" style="margin-bottom:10px">Cole o link do YouTube. O vídeo aparece no topo da aba Sobre (Boas-vindas).</div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Thumbnail personalizada (opcional)</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <img id="thumb-prev-sobre" src="" style="display:none;width:80px;height:45px;object-fit:cover;border-radius:6px;border:1px solid var(--borda)">
+            <label style="display:inline-flex;align-items:center;gap:6px;background:var(--cinza);border:1.5px dashed var(--borda);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--txt2)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload thumbnail
+              <input type="file" accept="image/png,image/jpeg" style="display:none" onchange="uploadThumbSecao('sobre',this)">
+            </label>
+            <span style="font-size:11px;color:var(--txt2)">Recomendado: 1280×720px</span>
+          </div>
+        </div>
+        <div class="ta-acs"><button class="btn sm g" onclick="salvarVideoSecao('sobre')">▶ Salvar e aplicar</button></div>
+      </div>
+      <div class="texto-admin-card">
+        <div class="ta-label">🎬 Vídeo — Aba Benefícios</div>
+        <input class="ta-input" style="min-height:auto" id="ed-vp-beneficios" placeholder="https://youtube.com/watch?v=...">
+        <div class="campo-hint" style="margin-bottom:10px">Cole o link do YouTube. O vídeo aparece no topo da aba Benefícios.</div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Thumbnail personalizada (opcional)</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <img id="thumb-prev-beneficios" src="" style="display:none;width:80px;height:45px;object-fit:cover;border-radius:6px;border:1px solid var(--borda)">
+            <label style="display:inline-flex;align-items:center;gap:6px;background:var(--cinza);border:1.5px dashed var(--borda);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--txt2)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload thumbnail
+              <input type="file" accept="image/png,image/jpeg" style="display:none" onchange="uploadThumbSecao('beneficios',this)">
+            </label>
+            <span style="font-size:11px;color:var(--txt2)">Recomendado: 1280×720px</span>
+          </div>
+        </div>
+        <div class="ta-acs"><button class="btn sm g" onclick="salvarVideoSecao('beneficios')">▶ Salvar e aplicar</button></div>
+      </div>
+      <div class="texto-admin-card">
+        <div class="ta-label">🎬 Vídeo — Aba Serviços</div>
+        <input class="ta-input" style="min-height:auto" id="ed-vp-servicos" placeholder="https://youtube.com/watch?v=...">
+        <div class="campo-hint" style="margin-bottom:10px">Cole o link do YouTube. O vídeo aparece no topo da aba Serviços.</div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Thumbnail personalizada (opcional)</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <img id="thumb-prev-servicos" src="" style="display:none;width:80px;height:45px;object-fit:cover;border-radius:6px;border:1px solid var(--borda)">
+            <label style="display:inline-flex;align-items:center;gap:6px;background:var(--cinza);border:1.5px dashed var(--borda);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--txt2)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload thumbnail
+              <input type="file" accept="image/png,image/jpeg" style="display:none" onchange="uploadThumbSecao('servicos',this)">
+            </label>
+            <span style="font-size:11px;color:var(--txt2)">Recomendado: 1280×720px</span>
+          </div>
+        </div>
+        <div class="ta-acs"><button class="btn sm g" onclick="salvarVideoSecao('servicos')">▶ Salvar e aplicar</button></div>
+      </div>
+      <div class="texto-admin-card">
+        <div class="ta-label">🎬 Vídeo — Aba Peças</div>
+        <input class="ta-input" style="min-height:auto" id="ed-vp-pecas" placeholder="https://youtube.com/watch?v=...">
+        <div class="campo-hint" style="margin-bottom:10px">Cole o link do YouTube. O vídeo aparece no topo da aba Peças.</div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Thumbnail personalizada (opcional)</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <img id="thumb-prev-pecas" src="" style="display:none;width:80px;height:45px;object-fit:cover;border-radius:6px;border:1px solid var(--borda)">
+            <label style="display:inline-flex;align-items:center;gap:6px;background:var(--cinza);border:1.5px dashed var(--borda);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--txt2)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload thumbnail
+              <input type="file" accept="image/png,image/jpeg" style="display:none" onchange="uploadThumbSecao('pecas',this)">
+            </label>
+            <span style="font-size:11px;color:var(--txt2)">Recomendado: 1280×720px</span>
+          </div>
+        </div>
+        <div class="ta-acs"><button class="btn sm g" onclick="salvarVideoSecao('pecas')">▶ Salvar e aplicar</button></div>
+      </div>
+      <div class="texto-admin-card">
+        <div class="ta-label">🎬 Vídeo — Aba Treinamentos</div>
+        <input class="ta-input" style="min-height:auto" id="ed-vp-treinamentos" placeholder="https://youtube.com/watch?v=...">
+        <div class="campo-hint" style="margin-bottom:10px">Cole o link do YouTube. O vídeo aparece no topo da aba Treinamentos.</div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Thumbnail personalizada (opcional)</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <img id="thumb-prev-treinamentos" src="" style="display:none;width:80px;height:45px;object-fit:cover;border-radius:6px;border:1px solid var(--borda)">
+            <label style="display:inline-flex;align-items:center;gap:6px;background:var(--cinza);border:1.5px dashed var(--borda);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--txt2)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload thumbnail
+              <input type="file" accept="image/png,image/jpeg" style="display:none" onchange="uploadThumbSecao('treinamentos',this)">
+            </label>
+            <span style="font-size:11px;color:var(--txt2)">Recomendado: 1280×720px</span>
+          </div>
+        </div>
+        <div class="ta-acs"><button class="btn sm g" onclick="salvarVideoSecao('treinamentos')">▶ Salvar e aplicar</button></div>
+      </div>
+      <div class="texto-admin-card">
+        <div class="ta-label">🎬 Vídeo — Aba Curso Online</div>
+        <input class="ta-input" style="min-height:auto" id="ed-curso-video-2" placeholder="https://youtube.com/watch?v=...">
+        <div class="campo-hint" style="margin-bottom:10px">Cole o link do YouTube. O vídeo aparece na aba Curso.</div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Thumbnail personalizada (opcional)</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <img id="thumb-prev-curso" src="" style="display:none;width:80px;height:45px;object-fit:cover;border-radius:6px;border:1px solid var(--borda)">
+            <label style="display:inline-flex;align-items:center;gap:6px;background:var(--cinza);border:1.5px dashed var(--borda);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--txt2)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload thumbnail
+              <input type="file" accept="image/png,image/jpeg" style="display:none" onchange="uploadThumbSecao('curso',this)">
+            </label>
+            <span style="font-size:11px;color:var(--txt2)">Recomendado: 1280×720px</span>
+          </div>
+        </div>
+        <div class="ta-acs"><button class="btn sm g" onclick="salvarVideoCurso2()">▶ Salvar e aplicar</button></div>
+      </div>
+    </div>
+
+    <!-- TEXTOS ADMIN -->
+    <div id="adm-textos" style="display:none">
+      <div class="ash"><div><div class="ati">Editar textos</div><div class="asu">Altere os textos e informações exibidos para os parceiros</div></div></div>
+      <div class="texto-admin-card">
+        <div class="ta-label">Título — Sobre o projeto</div>
+        <input class="ta-input" style="min-height:auto" id="ed-sobre-titulo" value="O Projeto Parceirão Estilo AR">
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-sobre-titulo','ed-sobre-titulo')">Salvar</button></div>
+      </div>
+      <div class="texto-admin-card">
+        <div class="ta-label">Texto — Apresentação do projeto</div>
+        <textarea class="ta-input" id="ed-sobre-corpo" rows="5">O Projeto Parceirão Estilo AR nasce com o propósito de formar uma rede nacional de assistências técnicas autorizadas, preparada para atender com excelência a instalação, manutenção e suporte dos nossos equipamentos. A iniciativa foi criada para profissionais e empresas que desejam ampliar seu portfólio, aumentar sua autoridade no mercado e trabalhar diretamente com uma marca reconhecida por inovação e qualidade em ar-condicionado automotivo elétrico.</textarea>
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-sobre-corpo','ed-sobre-corpo')">Salvar</button></div>
+      </div>
+      <div class="texto-admin-card">
+        <div class="ta-label">Título — Garantia estendida</div>
+        <input class="ta-input" style="min-height:auto" id="ed-gar-titulo" value="A cada 10 aparelhos, ganhe 3 garantias estendidas!">
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-gar-titulo','ed-gar-titulo')">Salvar</button></div>
+      </div>
+      <div class="texto-admin-card">
+        <div class="ta-label">Texto — Garantia estendida</div>
+        <textarea class="ta-input" id="ed-gar-corpo" rows="3">A cada 10 aparelhos de ar-condicionado adquiridos, o parceiro recebe 3 garantias estendidas de 1 ano totalmente gratuitas para oferecer aos seus clientes como um diferencial exclusivo.</textarea>
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-gar-corpo','ed-gar-corpo')">Salvar</button></div>
+      </div>
+      <div class="texto-admin-card">
+        <div class="ta-label">Título — Curso online</div>
+        <input class="ta-input" style="min-height:auto" id="ed-curso-titulo" value="Curso Online de Manutenção — Ar-Condicionado Automotivo">
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-curso-titulo','ed-curso-titulo')">Salvar</button></div>
+      </div>
+      <div class="texto-admin-card">
+        <div class="ta-label">Descrição — Curso online</div>
+        <textarea class="ta-input" id="ed-curso-desc" rows="3">Todos os parceiros autorizados Estilo AR recebem acesso exclusivo ao nosso curso online. Acesso ilimitado para toda a equipe por 1 ano!</textarea>
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-curso-desc','ed-curso-desc')">Salvar</button></div>
+      </div>
+
+      <div class="texto-admin-card">
+        <div class="ta-label">Telefone de suporte</div>
+        <input class="ta-input" style="min-height:auto" id="ed-tel" value="(11) 3000-0000 — Seg–Sex, 8h às 18h">
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-tel','ed-tel')">Salvar</button></div>
+      </div>
+
+      <div class="texto-admin-card">
+        <div class="ta-label">E-mail de suporte</div>
+        <input class="ta-input" style="min-height:auto" id="ed-email" value="suporte@estiloar.com.br — Resposta em até 24h">
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-email','ed-email')">Salvar</button></div>
+      </div>
+
+      <div style="margin:24px 0 12px;font-size:15px;font-weight:700;color:var(--txt);border-bottom:2px solid var(--azul3);padding-bottom:8px;display:inline-block">Cabeçalho do portal</div>
+
+      <div class="texto-admin-card">
+        <div class="ta-label">Subtítulo do cabeçalho (hero)</div>
+        <input class="ta-input" style="min-height:auto" id="ed-hero-sub" value="Acesse todos os benefícios exclusivos do Projeto Parceirão Estilo AR.">
+        <div class="campo-hint">Texto que aparece abaixo do "Bem-vindo" no topo do portal.</div>
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('hsub','ed-hero-sub')">Salvar</button></div>
+      </div>
+
+      <div style="margin:24px 0 12px;font-size:15px;font-weight:700;color:var(--txt);border-bottom:2px solid var(--azul3);padding-bottom:8px;display:inline-block">Aba Sobre</div>
+
+      <div class="texto-admin-card">
+        <div class="ta-label">Subtítulo — Sobre o projeto</div>
+        <input class="ta-input" style="min-height:auto" id="ed-sobre-sub" value="O que é o Projeto Parceirão Estilo AR?">
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-sobre-sub','ed-sobre-sub')">Salvar</button></div>
+      </div>
+
+      <div class="texto-admin-card">
+        <div class="ta-label">Texto — Segundo parágrafo (Sobre)</div>
+        <textarea class="ta-input" id="ed-sobre-desc" rows="3">Um programa oficial que credencia assistências técnicas autorizadas e empresas do setor automotivo para representar nossa marca. A Rede Credenciada Estilo AR é a forma que encontramos de estar ainda mais próxima dos nossos clientes, garantindo atendimento qualificado em todo o Brasil.</textarea>
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-sobre-desc','ed-sobre-desc')">Salvar</button></div>
+      </div>
+
+      <div style="margin:24px 0 12px;font-size:15px;font-weight:700;color:var(--txt);border-bottom:2px solid var(--azul3);padding-bottom:8px;display:inline-block">Aba Benefícios</div>
+
+      <div class="texto-admin-card">
+        <div class="ta-label">Lista de benefícios — editar itens</div>
+        <div class="campo-hint" style="margin-bottom:10px">Um benefício por linha. Cada linha vira um item da lista.</div>
+        <textarea class="ta-input" id="ed-beneficios-lista" rows="7">Acesso ao curso online de manutenção em ar-condicionado automotivo, válido por 1 ano.
+Suporte técnico direto com nossa equipe de engenharia e especialistas.
+Condições especiais para compra dos produtos.
+Possibilidade de aparecer em nossa lista oficial de autorizados, aumentando visibilidade e confiança.
+Participação em treinamentos, lives técnicas e atualizações constantes.</textarea>
+        <div class="ta-acs"><button class="btn sm" onclick="salvarListaBeneficios()">Salvar lista</button></div>
+      </div>
+
+      <div class="texto-admin-card">
+        <div class="ta-label">Título — Kit Visual</div>
+        <input class="ta-input" style="min-height:auto" id="ed-kv-titulo" value="Kit Visual Completo — GRÁTIS ao ingressar">
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-kv-titulo','ed-kv-titulo')">Salvar</button></div>
+      </div>
+
+      <div class="texto-admin-card">
+        <div class="ta-label">Descrição — Kit Visual</div>
+        <textarea class="ta-input" id="ed-kv-sub" rows="2">Ao ingressar na nossa Rede Autorizada, o parceiro já recebe um Kit Visual completo GRÁTIS, preparado para fortalecer sua presença profissional.</textarea>
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-kv-sub','ed-kv-sub')">Salvar</button></div>
+      </div>
+
+      <div style="margin:24px 0 12px;font-size:15px;font-weight:700;color:var(--txt);border-bottom:2px solid var(--azul3);padding-bottom:8px;display:inline-block">Itens do Kit Visual</div>
+
+      <div class="texto-admin-card">
+        <div class="ta-label">Gerenciar itens do kit visual</div>
+        <div class="campo-hint" style="margin-bottom:14px">Fotos verticais — dimensão ideal: 400×600px (proporção 2:3). Formatos: JPG ou PNG.</div>
+        <div class="kv-adm-grid" id="kv-adm-grid"></div>
+        <button class="btn g" style="margin-top:14px" onclick="abrirMoKvNovo()">+ Adicionar item ao kit</button>
+      </div>
+
+      <div class="texto-admin-card">
+        <div class="ta-label">Badge — Garantia estendida</div>
+        <input class="ta-input" style="min-height:auto" id="ed-gar-badge" value="10 aparelhos = 3 garantias estendidas grátis">
+        <div class="campo-hint">Texto do destaque verde na seção de garantia.</div>
+        <div class="ta-acs"><button class="btn sm" onclick="salvarGarBadge()">Salvar</button></div>
+      </div>
+      <div class="texto-admin-card">
+        <div class="ta-label">E-mail de suporte</div>
+        <input class="ta-input" style="min-height:auto" id="ed-email" value="suporte@estiloar.com.br — Resposta em até 24h">
+        <div class="ta-acs"><button class="btn sm" onclick="salvarTexto('txt-email','ed-email')">Salvar</button></div>
+      </div>
+
+
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAIS -->
+<div class="mo" id="mo-membro"><div class="modal">
+  <h3>Adicionar membro</h3><p class="modal-sub">O parceiro receberá convite por email.</p>
+  <div class="campo"><label>Nome</label><input id="nm-nome" placeholder="Ex: João Silva"></div>
+  <div class="campo"><label>E-mail</label><input type="email" id="nm-email" placeholder="email@empresa.com.br"></div>
+  <div class="campo"><label>Empresa</label><input id="nm-emp" placeholder="Nome da empresa"></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn" onclick="addMembro()">Adicionar</button></div>
+</div></div>
+
+<div class="mo" id="mo-modulo"><div class="modal">
+  <h3>Novo módulo</h3><p class="modal-sub">Crie um novo módulo de treinamento.</p>
+  <div class="campo"><label>Nome</label><input id="nm-mod" placeholder="Ex: Manutenção Preventiva"></div>
+  <div class="campo"><label>Cor</label><select id="nm-cor"><option value="t1">Azul escuro</option><option value="t2">Verde</option><option value="t3">Azul claro</option><option value="t4">Âmbar</option><option value="t5">Roxo</option></select></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn" onclick="addMod()">Criar</button></div>
+</div></div>
+
+<div class="mo" id="mo-video"><div class="modal">
+  <h3>Adicionar vídeo</h3><p class="modal-sub" id="mo-vid-sub">Adicionando ao módulo.</p>
+  <div class="campo"><label>Título</label><input id="nv-tit" placeholder="Ex: Instalação do compressor"></div>
+  <div class="campo"><label>Link YouTube</label><input id="nv-link" placeholder="https://youtube.com/watch?v=..."><div class="campo-hint">Cole o link normal ou de incorporação do YouTube.</div></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn g" onclick="addVideo()">Adicionar</button></div>
+</div></div>
+
+<div class="mo" id="mo-edit-mod"><div class="modal">
+  <h3>Editar módulo</h3><p class="modal-sub">Altere o nome e a cor do módulo.</p>
+  <input type="hidden" id="em-idx">
+  <div class="campo"><label>Nome do módulo</label><input id="em-nm" placeholder="Ex: Ar Elétrico Slim"></div>
+  <div class="campo"><label>Cor</label><select id="em-cor"><option value="t1">Azul escuro</option><option value="t2">Verde</option><option value="t3">Azul claro</option><option value="t4">Âmbar</option><option value="t5">Roxo</option></select></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn" onclick="salvarEditMod()">Salvar</button></div>
+</div></div>
+
+<div class="mo" id="mo-edit-vid"><div class="modal">
+  <h3>Editar vídeo</h3><p class="modal-sub" id="mo-edit-vid-sub">Edite o título e o link do vídeo.</p>
+  <input type="hidden" id="ev-mi"><input type="hidden" id="ev-vi">
+  <div class="campo"><label>Título do vídeo</label><input id="ev-tit" placeholder="Ex: Instalação do compressor"></div>
+  <div class="campo"><label>Link YouTube</label><input id="ev-link" placeholder="https://youtube.com/watch?v=..."><div class="campo-hint">Cole o link normal ou de incorporação do YouTube.</div></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn g" onclick="salvarEditVid()">Salvar</button></div>
+</div></div>
+
+
+
+<div class="mo" id="mo-kit"><div class="modal">
+  <h3>Novo kit</h3><p class="modal-sub" id="mo-kit-sub">Adicionando à linha.</p>
+  <div class="campo"><label>Nome do kit</label><input id="nk-nm" placeholder="Ex: Kit Básico 01"></div>
+  <div class="campo"><label>Preço original (De)</label><input id="nk-de" placeholder="Ex: R$ 4.162,00"></div>
+  <div class="campo"><label>Preço parceiro (Por)</label><input id="nk-por" placeholder="Ex: R$ 1.655,00"></div>
+  <div class="campo"><label>Itens do kit (um por linha)</label><textarea id="nk-itens" rows="3" placeholder="Ar Elétrico Slim - 1 Unid&#10;Gerador Automotivo - 1 Unid"></textarea></div>
+  <div class="campo">
+    <label>Fotos do kit (JPG ou PNG, 800×600px)</label>
+    <div id="nk-fotos-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;min-height:0"></div>
+    <label style="display:flex;align-items:center;gap:8px;background:var(--cinza);border:1.5px dashed var(--borda);border-radius:8px;padding:12px 16px;cursor:pointer;font-size:13px;color:var(--txt2);font-weight:400;text-transform:none;letter-spacing:0">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Clique para selecionar fotos (pode selecionar várias)
+      <input type="file" id="nk-fotos-input" accept="image/png,image/jpeg" multiple style="display:none" onchange="previewFotos(this)">
+    </label>
+    <div class="campo-hint">Selecione quantas fotos quiser. Dimensão ideal: 800×600px. Formatos: JPG ou PNG.</div>
+  </div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn" onclick="addKit()">Adicionar kit</button></div>
+</div></div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="mo" id="mo-kit-peca"><div class="modal">
+  <h3>Novo kit de peças</h3><p class="modal-sub">Crie uma tabela de peças com preços exclusivos.</p>
+  <div class="campo"><label>Nome do kit</label><input id="nkp-nm" placeholder="Ex: Kit Básico"></div>
+  <div class="campo"><label>Preço total original</label><input id="nkp-de" placeholder="Ex: R$ 4.162,00"></div>
+  <div class="campo"><label>Preço total parceiro</label><input id="nkp-por" placeholder="Ex: R$ 1.655,00"></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn" onclick="addKitPeca()">Criar kit</button></div>
+</div></div>
+
+<div class="mo" id="mo-peca"><div class="modal">
+  <h3>Adicionar peça</h3><p class="modal-sub" id="mo-peca-sub">Adicionando ao kit.</p>
+  <div class="campo"><label>Código</label><input id="np-cod" placeholder="Ex: 100252EA"></div>
+  <div class="campo"><label>Nome da peça</label><input id="np-nm" placeholder="Ex: Módulo Compressor 24v"></div>
+  <div class="campo"><label>Quantidade</label><input id="np-qt" type="number" value="1" min="1"></div>
+  <div class="campo"><label>Valor original (R$)</label><input id="np-vl" placeholder="Ex: 600,00"></div>
+  <div class="campo"><label>Valor parceiro (R$)</label><input id="np-vk" placeholder="Ex: 260,00"></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn g" onclick="addPeca()">Adicionar</button></div>
+</div></div>
+
+<div class="mo" id="mo-edit-peca"><div class="modal">
+  <h3>Editar peça</h3><p class="modal-sub" id="mo-edit-peca-sub">Edite as informações da peça.</p>
+  <input type="hidden" id="ep-ki"><input type="hidden" id="ep-pi">
+  <div class="campo"><label>Código</label><input id="ep-cod" placeholder="Ex: 100252EA"></div>
+  <div class="campo"><label>Nome da peça</label><input id="ep-nm" placeholder="Ex: Módulo Compressor 24v"></div>
+  <div class="campo"><label>Quantidade</label><input id="ep-qt" type="number" value="1" min="1"></div>
+  <div class="campo"><label>Valor original</label><input id="ep-vl" placeholder="Ex: 600,00"></div>
+  <div class="campo"><label>Valor parceiro</label><input id="ep-vk" placeholder="Ex: 260,00"></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn g" onclick="salvarEditPeca()">Salvar</button></div>
+</div></div>
+
+<div class="mo" id="mo-edit-kit-peca"><div class="modal">
+  <h3>Editar kit de peças</h3><p class="modal-sub">Edite nome e totais do kit.</p>
+  <input type="hidden" id="ekp-ki">
+  <div class="campo"><label>Nome do kit</label><input id="ekp-nm" placeholder="Ex: Kit Básico"></div>
+  <div class="campo"><label>Preço total original</label><input id="ekp-de" placeholder="Ex: R$ 4.162,00"></div>
+  <div class="campo"><label>Preço total parceiro</label><input id="ekp-por" placeholder="Ex: R$ 1.655,00"></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn" onclick="salvarEditKitPeca()">Salvar</button></div>
+</div></div>
+
+<div class="mo" id="mo-kv-item"><div class="modal">
+  <h3>Novo item do kit visual</h3>
+  <p class="modal-sub">Adicione um item ao kit visual gratuito.</p>
+  <input type="hidden" id="kvi-idx" value="-1">
+  <div class="campo"><label>Nome do item</label><input id="kvi-nm" placeholder="Ex: Banner, Adesivo A4..."></div>
+  <div class="campo"><label>Descrição</label><input id="kvi-desc" placeholder="Ex: 1 unidade · 70×100cm"></div>
+  <div class="campo">
+    <label>Foto do item (400×600px recomendado)</label>
+    <div id="kvi-foto-preview" style="margin-bottom:10px;display:none">
+      <img id="kvi-foto-img" src="" style="width:120px;aspect-ratio:2/3;object-fit:cover;border-radius:8px;border:1px solid var(--borda)">
+    </div>
+    <label style="display:inline-flex;align-items:center;gap:6px;background:var(--cinza);border:1.5px dashed var(--borda);border-radius:7px;padding:8px 14px;cursor:pointer;font-size:12px;color:var(--txt2)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Selecionar foto
+      <input type="file" accept="image/png,image/jpeg" style="display:none" id="kvi-foto-input" onchange="previewKviFoto(this)">
+    </label>
+  </div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn g" onclick="salvarKvItem()">Salvar</button></div>
+</div></div>
+
+<div class="mo" id="mo-servico"><div class="modal">
+  <h3>Novo serviço</h3><p class="modal-sub">Adicione um serviço à tabela de mão de obra.</p>
+  <div class="campo"><label>Nome do serviço</label><input id="ns-nm" placeholder="Ex: Troca de Compressor"></div>
+  <div class="campo"><label>Valor (R$)</label><input id="ns-vl" placeholder="Ex: 100,00"></div>
+  <div class="campo"><label>Código</label><input id="ns-cod" placeholder="Ex: 1010"></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn g" onclick="addServico()">Adicionar</button></div>
+</div></div>
+
+<div class="mo" id="mo-edit-servico"><div class="modal">
+  <h3>Editar serviço</h3><p class="modal-sub">Edite as informações do serviço.</p>
+  <input type="hidden" id="es-idx">
+  <div class="campo"><label>Nome do serviço</label><input id="es-nm" placeholder="Ex: Troca de Compressor"></div>
+  <div class="campo"><label>Valor (R$)</label><input id="es-vl" placeholder="Ex: 100,00"></div>
+  <div class="campo"><label>Código</label><input id="es-cod" placeholder="Ex: 1010"></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn g" onclick="salvarEditServico()">Salvar</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<!-- TELA CRIAR SENHA (para parceiros que receberam convite) -->
+<div id="tela-criar-senha" style="display:none;position:fixed;inset:0;background:linear-gradient(135deg,var(--azul),#1a3a7a,var(--azul2));z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:48px 40px;width:100%;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+    <div style="font-size:32px;margin-bottom:16px">🔐</div>
+    <div style="font-size:20px;font-weight:700;color:var(--azul);margin-bottom:8px">Crie sua senha</div>
+    <div style="font-size:13px;color:var(--txt2);margin-bottom:28px">Bem-vindo ao Portal Parceirão Estilo AR! Defina sua senha para acessar.</div>
+    <div style="text-align:left;margin-bottom:16px">
+      <label style="font-size:12px;font-weight:600;color:var(--txt2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Nova senha</label>
+      <input type="password" id="nova-senha" placeholder="Mínimo 6 caracteres" style="width:100%;padding:12px 14px;border:1.5px solid var(--borda);border-radius:8px;font-size:14px;font-family:inherit;outline:none">
+    </div>
+    <div style="text-align:left;margin-bottom:24px">
+      <label style="font-size:12px;font-weight:600;color:var(--txt2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Confirmar senha</label>
+      <input type="password" id="confirmar-senha" placeholder="Repita a senha" style="width:100%;padding:12px 14px;border:1.5px solid var(--borda);border-radius:8px;font-size:14px;font-family:inherit;outline:none">
+    </div>
+    <div id="criar-senha-erro" style="color:#e53e3e;font-size:13px;margin-bottom:10px;display:none"></div>
+    <button onclick="criarSenha()" style="width:100%;padding:13px;background:var(--azul);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Acessar o portal</button>
+  </div>
+</div>
+
+<div class="social-bar" id="social-bar" style="display:none">
+  <a class="social-link" href="http://www.estiloar.com.br" target="_blank">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#29ABE2" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    estiloar.com.br
+  </a>
+  <span style="color:rgba(255,255,255,.2)">|</span>
+  <a class="social-link" href="https://www.youtube.com/@estiloar8443" target="_blank">
+    <svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+    YouTube
+  </a>
+  <span style="color:rgba(255,255,255,.2)">|</span>
+  <a class="social-link" href="https://www.instagram.com/estiloardistribuidora/" target="_blank">
+    <svg viewBox="0 0 24 24" fill="url(#ig-grad)"><defs><linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#F58529"/><stop offset="50%" style="stop-color:#DD2A7B"/><stop offset="100%" style="stop-color:#8134AF"/></linearGradient></defs><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    Instagram
+  </a>
+  <span style="color:rgba(255,255,255,.2)">|</span>
+  <a class="social-link" href="https://www.facebook.com/estiloardistribuidora" target="_blank">
+    <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    Facebook
+  </a>
+</div>
+
+<script>
+
+// ── SUPABASE CONFIG ──────────────────────────────────────────────────────────
+const SUPABASE_URL='https://lbtugcytusroiplhwodb.supabase.co';
+const SUPABASE_KEY='sb_publishable_JyAcHfLwB0HHV95hz0bALg_0z9fJKg0';
+
+// Initialize Supabase client
+const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Legacy REST API for non-auth operations
+async function sbFetch(path, method, body){
+  method=method||'GET';
+  const headers={
+    'Content-Type':'application/json',
+    'apikey':SUPABASE_KEY,
+    'Authorization':'Bearer '+SUPABASE_KEY
+  };
+  if(method==='POST'||method==='PATCH'){
+    headers['Prefer']='return=representation';
+  }
+  const opts={method,headers};
+  if(body)opts.body=JSON.stringify(body);
+  const r=await fetch(SUPABASE_URL+'/rest/v1/'+path,opts);
+  if(!r.ok){
+    const e=await r.text();
+    console.error('Supabase error ('+method+' '+path+'):',e);
+    return null;
+  }
+  if(method==='DELETE'||r.status===204)return true;
+  const text=await r.text();
+  if(!text)return [];
+  try{return JSON.parse(text);}catch(e){return [];}
+}
+
+
+async function dbUpsertConfig(chave,valor){
+  // Delete then insert (reliable upsert for text primary key)
+  await sbFetch('configuracoes?chave=eq.'+encodeURIComponent(chave),'DELETE');
+  return sbFetch('configuracoes','POST',{chave,valor});
+}
+async function dbCarregarConfigs(){
+  const data=await sbFetch('configuracoes?select=*');
+  const obj={};
+  if(data)data.forEach(c=>obj[c.chave]=c.valor);
+  return obj;
+}
+async function dbAdicionarMembro(nome,email,empresa){
+  const r=await sbFetch('membros','POST',{nome,email,empresa,status:'ativo'});
+  console.log('dbAdicionarMembro result:',r);
+  return r;
+}
+async function dbRemoverMembroDB(id){
+  return sbFetch('membros?id=eq.'+id,'DELETE');
+}
+async function dbCarregarServicos(){
+  return sbFetch('servicos?select=*&order=ordem.asc');
+}
+async function dbSalvarServico(s){
+  if(s.id)return sbFetch('servicos?id=eq.'+s.id,'PATCH',{codigo:s.cod,nome:s.nm,valor:s.vl});
+  return sbFetch('servicos','POST',{codigo:s.cod,nome:s.nm,valor:s.vl,ordem:servicos.length});
+}
+async function dbRemoverServicoDB(id){
+  return sbFetch('servicos?id=eq.'+id,'DELETE');
+}
+async function dbCarregarKitsPeca(){
+  return sbFetch('kits_peca?select=*,pecas(*)&order=ordem.asc');
+}
+async function dbSalvarPeca(kitId,p){
+  if(p.id)return sbFetch('pecas?id=eq.'+p.id,'PATCH',{codigo:p.cod,nome:p.nm,quantidade:p.qt,valor:p.vl,valor_parceiro:p.vk});
+  return sbFetch('pecas','POST',{kit_id:kitId,codigo:p.cod,nome:p.nm,quantidade:parseInt(p.qt)||1,valor:p.vl,valor_parceiro:p.vk,ordem:0});
+}
+async function dbRemoverPecaDB(id){
+  return sbFetch('pecas?id=eq.'+id,'DELETE');
+}
+
+// MÓDULOS
+async function dbSalvarModulo(nm,cor){
+  const r=await sbFetch('modulos','POST',{nome:nm,cor:cor,ordem:mods.length});
+  console.log('dbSalvarModulo result:',r);
+  return r;
+}
+async function dbAtualizarModulo(id,nm,cor){
+  return sbFetch('modulos?id=eq.'+id,'PATCH',{nome:nm,cor:cor});
+}
+async function dbRemoverModulo(id){
+  return sbFetch('modulos?id=eq.'+id,'DELETE');
+}
+async function dbSalvarVideoModulo(moduloId,titulo,link,ordem){
+  return sbFetch('videos','POST',{modulo_id:moduloId,titulo:titulo,link:link,ordem:ordem});
+}
+async function dbAtualizarVideo(id,titulo,link){
+  return sbFetch('videos?id=eq.'+id,'PATCH',{titulo:titulo,link:link});
+}
+async function dbRemoverVideo(id){
+  return sbFetch('videos?id=eq.'+id,'DELETE');
+}
+
+// MEMBROS DB
+// ── AUTH FUNCTIONS ───────────────────────────────────────────────────────────
+async function authConvidarParceiro(email, nome){
+  // Note: Creating auth users requires admin access
+  // Users should be created via Supabase dashboard or Edge Function
+  // Here we just save to membros table and show instructions
+  console.log('Parceiro cadastrado na tabela membros:', email);
+  return {email, nome};
+}
+
+async function authLogin(email, senha){
+  const {data,error}=await sbClient.auth.signInWithPassword({email,password:senha});
+  if(error){console.error('Login error:',error.message);return null;}
+  return data;
+}
+
+async function authLogout(){
+  await sbClient.auth.signOut();
+}
+
+async function authGetUser(){
+  const {data}=await sbClient.auth.getUser();
+  return data.user;
+}
+
+// Check if user is admin
+function isAdminEmail(email){
+  return email==='admin@estiloar.com.br';
+}
+
+async function dbCarregarMembros(){
+  return sbFetch('membros?select=*&order=criado_em.desc');
+}
+async function dbToggleMembroStatus(id,status){
+  return sbFetch('membros?id=eq.'+id,'PATCH',{status:status});
+}
+async function dbRemoverMembroDB(id){
+  return sbFetch('membros?id=eq.'+id,'DELETE');
+}
+
+async function inicializarPortal(){
+  try{
+    const configs=await dbCarregarConfigs();
+
+    // Aplicar textos salvos
+    ['txt-sobre-titulo','txt-sobre-corpo','txt-sobre-sub','txt-sobre-desc',
+     'txt-kv-titulo','txt-kv-sub','txt-gar-titulo','txt-gar-corpo',
+     'txt-curso-titulo','txt-curso-desc','txt-tel','txt-email','hsub'].forEach(key=>{
+      if(configs[key]){const el=document.getElementById(key);if(el)el.textContent=configs[key];}
+    });
+
+    // Aplicar vídeos salvos
+    ['sobre','beneficios','pecas','treinamentos','servicos'].forEach(sec=>{
+      const url=configs['video_'+sec];
+      if(url){
+        const id=embedId(url);
+        const thumb=configs['thumb_'+sec]||'';
+        if(id)renderVideoPlayer(sec,id,thumb);
+      }
+    });
+
+    // Vídeo do curso
+    const cursoUrl=configs['video_curso'];
+    if(cursoUrl){
+      const id=embedId(cursoUrl);
+      const cont=document.getElementById('curso-player-cont');
+      if(id&&cont){
+        const thumb=configs['thumb_curso']||'';
+        if(thumb){
+          cont.innerHTML='<div class="vp-thumb" onclick="playVideoSecao(\'curso\',\''+id+'\',this)"><img src="'+thumb+'" alt="Thumbnail"><div class="vp-thumb-overlay"><div class="vp-play-circle"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div></div></div>';
+        }else{
+          cont.innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>';
+        }
+      }
+    }
+
+    // Carregar serviços
+    const svcs=await dbCarregarServicos();
+    if(svcs&&svcs.length>0){
+      servicos=svcs.map(function(s){return {cod:s.codigo||'',nm:s.nome,vl:s.valor||'',id:s.id};});
+    }
+
+    // Carregar peças
+    const kps=await dbCarregarKitsPeca();
+    if(kps&&kps.length>0){
+      kitsPeca=kps.map(function(k){
+        return {nm:k.nome,de:k.preco_de||'',por:k.preco_por||'',id:k.id,
+          pecas:(k.pecas||[]).map(function(p){
+            return {cod:p.codigo||'',nm:p.nome,qt:p.quantidade||1,vl:p.valor||'',vk:p.valor_parceiro||'',id:p.id};
+          })
+        };
+      });
+    }
+
+    // Carregar módulos do banco
+    const dbMods=await sbFetch('modulos?select=*,videos(*),fotos_modulo(*)&order=ordem.asc');
+    if(dbMods&&dbMods.length>0){
+      mods=dbMods.map(function(m){
+        return {
+          id:m.id, nm:m.nome, cor:m.cor||'t1',
+          pdf:{nm:m.pdf_nome||'',url:m.pdf_url||''},
+          fotos:(m.fotos_modulo||[]).map(function(f){return f.foto_base64;}).filter(Boolean),
+          vids:(m.videos||[]).sort(function(a,b){return a.ordem-b.ordem;}).map(function(v){
+            return {id:v.id,t:v.titulo,l:v.link||''};
+          })
+        };
+      });
+      console.log('Módulos carregados do Supabase:',mods.length);
+    }
+
+    console.log('Portal inicializado com Supabase');
+  }catch(e){
+    console.error('Erro ao inicializar:',e);
+  }
+}
+
+const USERS={'parceiro@email.com':{s:'1234',n:'João Silva',adm:false},'admin@estiloar.com.br':{s:'admin123',n:'Equipe Admin',adm:true}};
+let curUser=null,avIdx=0,modAtual=null,linhaAtual=null,kitPecaAtual=null;
+const avCs=['a1','a2','a3','a4','a5'];
+const corMap={t1:'#1565C0',t2:'#1D9E75',t3:'#29ABE2',t4:'#F59E0B',t5:'#9333EA'};
+
+let mods=[
+  {nm:'Ar Elétrico Slim',cor:'t1',fotos:[],pdf:{nm:'',url:''},vids:[{t:'Introdução ao sistema',l:'https://www.youtube.com/embed/dQw4w9WgXcQ'},{t:'Instalando o compressor',l:'https://www.youtube.com/embed/dQw4w9WgXcQ'},{t:'Testes pós-instalação',l:'https://www.youtube.com/embed/dQw4w9WgXcQ'}]},
+  {nm:'Ar Elétrico ECO',cor:'t2',fotos:[],pdf:{nm:'',url:''},vids:[{t:'Leitura de códigos de erro',l:'https://www.youtube.com/embed/dQw4w9WgXcQ'},{t:'Identificando falhas na placa',l:'https://www.youtube.com/embed/dQw4w9WgXcQ'}]},
+  {nm:'Gerador Automotivo',cor:'t3',fotos:[],pdf:{nm:'',url:''},vids:[{t:'Limpeza dos filtros',l:'https://www.youtube.com/embed/dQw4w9WgXcQ'},{t:'Verificação do gás',l:'https://www.youtube.com/embed/dQw4w9WgXcQ'}]}
+];
+
+let linhas=[
+  {nm:'Linha Slim',kits:[
+    {nm:'Kit Básico 01',de:'R$ 2.340,00',por:'R$ 1.200,00',itens:['Ar Elétrico Slim - 1 Unid','Suporte - 1 Unid'],fotos:[]},
+    {nm:'Kit Básico 02',de:'R$ 4.800,00',por:'R$ 2.400,00',itens:['Ar Elétrico Slim - 1 Unid','Gerador Automotivo (24v) - 1 Unid','Suporte - 1 Unid'],fotos:[]}
+  ]},
+  {nm:'Linha ECO',kits:[
+    {nm:'Kit Básico 01',de:'R$ 2.520,00',por:'R$ 1.300,00',itens:['Ar Elétrico ECO - 1 Unid','Suporte - 1 Unid'],fotos:[]},
+    {nm:'Kit Básico 02',de:'R$ 4.440,00',por:'R$ 2.200,00',itens:['Ar-Condicionado ECO - 1 Unid','Gerador Automotivo (24v) - 1 Unid','Suporte - 1 Unid'],fotos:[]}
+  ]}
+];
+
+
+
+let cursoVideoId='';
+
+let servicos=[
+  {cod:'1010',nm:'Troca de Compressor',vl:'R$ 100,00'},
+  {cod:'1110',nm:'Troca de Condensador',vl:'R$ 90,00'},
+  {cod:'1210',nm:'Troca de Evaporador',vl:'R$ 110,00'},
+  {cod:'1310',nm:'Troca de Válvula de Expansão',vl:'R$ 90,00'},
+  {cod:'1410',nm:'Troca de Ventilador Interno',vl:'R$ 90,00'},
+  {cod:'1510',nm:'Troca de Termostato ou Controle Eletrônico',vl:'R$ 90,00'},
+  {cod:'1610',nm:'Troca de Gás Refrigerante',vl:'R$ 200,00'},
+  {cod:'1710',nm:'Troca de Módulo de Controle',vl:'R$ 90,00'},
+  {cod:'1810',nm:'Troca de Sensores de Temperatura e Pressão',vl:'R$ 90,00'},
+  {cod:'1910',nm:'Troca de Fiação Elétrica',vl:'R$ 90,00'},
+  {cod:'2010',nm:'Troca de Tubulações e Conexões',vl:'R$ 50,00'},
+  {cod:'2110',nm:'Troca de Suportes e Fixadores',vl:'R$ 80,00'},
+  {cod:'2210',nm:'Troca de Painel de Controle',vl:'R$ 100,00'},
+  {cod:'2310',nm:'Isolamento Térmico',vl:'R$ 90,00'},
+  {cod:'2410',nm:'Troca de Carcaça e Estruturas Externas',vl:'R$ 100,00'},
+  {cod:'2510',nm:'Troca de Tampa Plástica Interna',vl:'R$ 100,00'},
+  {cod:'2610',nm:'Troca de Difusor',vl:'R$ 25,00'},
+  {cod:'2710',nm:'Troca de Eletroventilador Externo',vl:'R$ 120,00'},
+  {cod:'2810',nm:'Carga de Óleo',vl:'R$ 50,00'},
+  {cod:'2910',nm:'Teste de Nitrogênio',vl:'R$ 80,00'},
+  {cod:'3010',nm:'Troca do Fusível',vl:'R$ 40,00'},
+  {cod:'3110',nm:'Troca do Led',vl:'R$ 30,00'}
+];
+let garantiaUrl='';
+let kvItens=[
+  {nm:'Banner', desc:'1 unidade · 70×100cm', foto:''}
+];
+let garantiaFileName='';
+
+let kitsPeca=[
+  {nm:'Kit Básico',de:'R$ 4.162,00',por:'R$ 1.655,00',pecas:[
+    {cod:'100252EA',nm:'Modulo Compressor 24v',qt:1,vl:'R$ 600,00',vk:'R$ 260,00'},
+    {cod:'100253EA',nm:'Modulo Compressor 12v',qt:1,vl:'R$ 600,00',vk:'R$ 260,00'},
+    {cod:'180252EA',nm:'Painel de controle ar eletrico 24v',qt:1,vl:'R$ 350,00',vk:'R$ 140,00'},
+    {cod:'180253EA',nm:'Painel de controle ar eletrico 12v',qt:1,vl:'R$ 350,00',vk:'R$ 140,00'},
+    {cod:'551252EA',nm:'Eletro do Condensador 24V c/ defletor',qt:1,vl:'R$ 510,00',vk:'R$ 220,00'},
+    {cod:'551253EA',nm:'Eletro do Condensador 12V c/ defletor',qt:1,vl:'R$ 510,00',vk:'R$ 220,00'},
+    {cod:'530252EA',nm:'Motor do Evaporador 24v c/ caracol',qt:1,vl:'R$ 494,00',vk:'R$ 170,00'},
+    {cod:'530253EA',nm:'Motor do Evaporador 12v c/ caracol',qt:1,vl:'R$ 494,00',vk:'R$ 170,00'},
+    {cod:'350252EA',nm:'Led Ar Condicionado 24v',qt:1,vl:'R$ 48,00',vk:'R$ 15,00'},
+    {cod:'350253EA',nm:'Led Ar Condicionado 12v',qt:1,vl:'R$ 48,00',vk:'R$ 15,00'},
+    {cod:'245252EA',nm:'Difusor Ar Condicionado Slim',qt:1,vl:'R$ 45,00',vk:'R$ 10,00'},
+    {cod:'200252EA',nm:'Pressostato Ar Condicionado Slim',qt:1,vl:'R$ 113,00',vk:'R$ 35,00'}
+  ]},
+  {nm:'Kit Plus',de:'R$ 10.416,00',por:'R$ 5.355,00',pecas:[
+    {cod:'100252EA',nm:'Modulo Compressor 24v',qt:1,vl:'R$ 600,00',vk:'R$ 260,00'},
+    {cod:'100253EA',nm:'Modulo Compressor 12v',qt:1,vl:'R$ 600,00',vk:'R$ 260,00'},
+    {cod:'180252EA',nm:'Painel de controle ar eletrico 24v',qt:1,vl:'R$ 350,00',vk:'R$ 140,00'},
+    {cod:'180253EA',nm:'Painel de controle ar eletrico 12v',qt:1,vl:'R$ 350,00',vk:'R$ 140,00'},
+    {cod:'551252EA',nm:'Eletro do Condensador 24V c/ defletor',qt:1,vl:'R$ 510,00',vk:'R$ 220,00'},
+    {cod:'551253EA',nm:'Eletro do Condensador 12V c/ defletor',qt:1,vl:'R$ 510,00',vk:'R$ 220,00'},
+    {cod:'530252EA',nm:'Motor do Evaporador 24v c/ caracol',qt:1,vl:'R$ 494,00',vk:'R$ 170,00'},
+    {cod:'530253EA',nm:'Motor do Evaporador 12v c/ caracol',qt:1,vl:'R$ 494,00',vk:'R$ 170,00'},
+    {cod:'350252EA',nm:'Led Ar Condicionado 24v',qt:1,vl:'R$ 48,00',vk:'R$ 15,00'},
+    {cod:'350253EA',nm:'Led Ar Condicionado 12v',qt:1,vl:'R$ 48,00',vk:'R$ 15,00'},
+    {cod:'245252EA',nm:'Difusor Ar Condicionado Slim',qt:1,vl:'R$ 45,00',vk:'R$ 10,00'},
+    {cod:'200252EA',nm:'Pressostato Ar Condicionado Slim',qt:1,vl:'R$ 113,00',vk:'R$ 35,00'},
+    {cod:'600752EA',nm:'Compressor Ar Eletrico Slim 24V',qt:1,vl:'R$ 1.497,00',vk:'R$ 995,00'},
+    {cod:'600753EA',nm:'Compressor Ar Eletrico Slim 12V',qt:1,vl:'R$ 1.497,00',vk:'R$ 995,00'},
+    {cod:'650252EA',nm:'Condensador Ar Eletrico Slim',qt:1,vl:'R$ 350,00',vk:'R$ 270,00'},
+    {cod:'700252EA',nm:'Evaporador Ar Eletrico Slim',qt:1,vl:'R$ 650,00',vk:'R$ 410,00'},
+    {cod:'120250EA',nm:'Chicote Ar Condicionado Slim - Modulo a Bateria 24v',qt:1,vl:'R$ 600,00',vk:'R$ 315,00'},
+    {cod:'120251EA',nm:'Chicote Ar Condicionado Slim - Modulo a Bateria 12v',qt:1,vl:'R$ 600,00',vk:'R$ 315,00'},
+    {cod:'120252EA',nm:'Chicote Ar Condicionado Slim - Modulo ao Compressor 24v',qt:1,vl:'R$ 180,00',vk:'R$ 80,00'},
+    {cod:'120253EA',nm:'Chicote Ar Condicionado Slim - Modulo ao Compressor 12v',qt:1,vl:'R$ 180,00',vk:'R$ 80,00'},
+    {cod:'120254EA',nm:'Chicote Ar Condicionado Slim - Painel ao Modulo C/sensor Temperatura 12V',qt:1,vl:'R$ 350,00',vk:'R$ 120,00'}
+  ]}
+];
+
+function t(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800)}
+function abrirMo(id){fecharMo();document.getElementById(id).classList.add('ab')}
+function fecharMo(){document.querySelectorAll('.mo').forEach(m=>m.classList.remove('ab'))}
+
+function embedId(url){
+  if(!url)return null;
+  let m=url.match(/youtube\.com\/embed\/([^?&"]+)/);if(m)return m[1];
+  m=url.match(/[?&]v=([^&"]+)/);if(m)return m[1];
+  m=url.match(/youtu\.be\/([^?&"]+)/);if(m)return m[1];
+  return null;
+}
+
+function aplicarUsuarioLogado(email, nome){
+  const adm=isAdminEmail(email);
+  const nomeExibir=nome||(email.split('@')[0]);
+  const pri=nomeExibir.split(' ')[0];
+  document.getElementById('lerro').style.display='none';
+  document.getElementById('tela-login').style.display='none';
+  document.getElementById('unm').textContent=nomeExibir;
+  document.getElementById('htit').textContent='Bem-vindo, '+pri;
+  document.getElementById('uav').textContent=nomeExibir.split(' ').slice(0,2).map(function(x){return x[0];}).join('').toUpperCase();
+  document.getElementById('btn-admin').style.display=adm?'':'none';
+  document.getElementById('social-bar').style.display='flex';
+  inicializarPortal().then(function(){
+    if(adm)irAdmin();else irPortal();
+  });
+}
+
+function login(){
+  const email=document.getElementById('ei').value.trim().toLowerCase();
+  const senha=document.getElementById('si').value;
+  const btnLogin=document.querySelector('.btn-login');
+  if(btnLogin)btnLogin.textContent='Entrando...';
+  authLogin(email,senha).then(function(data){
+    if(btnLogin)btnLogin.textContent='Entrar no portal';
+    if(data&&data.user){
+      const nome=data.user.user_metadata&&data.user.user_metadata.nome?data.user.user_metadata.nome:email.split('@')[0];
+      aplicarUsuarioLogado(email,nome);
+    }else{
+      document.getElementById('lerro').style.display='block';
+    }
+  });
+}
+
+function logout(){
+  authLogout();
+  document.getElementById('tela-login').style.display='flex';
+  document.getElementById('tela-portal').style.display='none';
+  document.getElementById('tela-admin').style.display='none';
+  document.getElementById('ei').value='';
+  document.getElementById('si').value='';
+  document.getElementById('btn-admin').style.display='none';
+  document.getElementById('social-bar').style.display='none';
+}
+
+// Auto-login se sessão ativa no Supabase
+window.addEventListener('load', function(){
+  sbClient.auth.getSession().then(function(result){
+    const session=result.data.session;
+    if(session&&session.user){
+      const email=session.user.email;
+      const nome=session.user.user_metadata&&session.user.user_metadata.nome?session.user.user_metadata.nome:email.split('@')[0];
+      aplicarUsuarioLogado(email,nome);
+    }
+  });
+});
+
+function irPortal(){
+  document.getElementById('tela-portal').style.display='block';
+  document.getElementById('tela-admin').style.display='none';
+  renderMods();renderPecas();renderKvView();
+  atualizarStats();
+}
+
+function irAdmin(){
+  document.getElementById('tela-portal').style.display='none';
+  document.getElementById('tela-admin').style.display='block';
+  recalcularTodos();
+  renderModsAdm();renderLinhasAdm();renderKitsPecaAdm();renderServicosAdm();renderKvAdm();
+  preencherCamposVideos();
+  carregarMembrosDB();
+}
+
+
+
+function aba(id,el){
+  ['sobre','beneficios','pecas','curso','treinamentos','servicos','suporte'].forEach(a=>document.getElementById('aba-'+a).style.display=a===id?'block':'none');
+  document.querySelectorAll('#tela-portal .nl').forEach(l=>l.classList.remove('at'));
+  if(el)el.classList.add('at');
+  if(id==='pecas'){recalcularTodos();renderPecas();}
+  if(id==='beneficios')renderKvView();
+  if(id==='servicos')renderServicos();
+  if(id==='treinamentos')renderMods();
+}
+
+function abaAdm(id,el){
+  ['membros','conteudo','servicos-adm','pecas-adm','videos-adm','textos'].forEach(a=>document.getElementById('adm-'+a).style.display=a===id?'block':'none');
+  document.querySelectorAll('#tela-admin .nl').forEach(l=>l.classList.remove('at'));
+  if(el)el.classList.add('at');
+  if(id==='pecas-adm')renderKitsPecaAdm();
+  if(id==='textos'){renderKvAdm();}
+  if(id==='servicos-adm')renderServicosAdm();
+}
+
+function atualizarStats(){ /* stats removidos do hero */ }
+
+// RENDER PARCEIRO
+function renderMods(){
+  const g=document.getElementById('mods-parceiro');g.innerHTML='';
+  const sts=['✅ Concluído','▶ Em andamento','⏸ Não iniciado'];
+  const prs=['100%','60%','0%'];
+  mods.forEach((m,i)=>{
+    g.innerHTML+=`<div class="mod-card" onclick="abrirMod(${i})">
+      <div class="mod-thumb ${m.cor}">
+        <div class="pBtn"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div>
+        <span class="mq">${m.vids.length} vídeos</span>
+      </div>
+      <div class="mod-info">
+        <h3>${m.nm}</h3>
+        <div class="mod-st">${sts[i]||'⏸ Não iniciado'}</div>
+        <div class="pb"><div class="pf" style="width:${prs[i]||'0%'}"></div></div>
+      </div>
+    </div>`;
+  });
+}
+
+function abrirMod(mi){
+  modAtual=mi;const m=mods[mi];
+  document.getElementById('area-player').style.display='block';
+  document.getElementById('pl-mod-nm').textContent=m.nm;
+  document.getElementById('vl-head').textContent=m.nm;
+
+  // fotos do produto
+  let fotoArea=document.getElementById('mod-fotos-area');
+  if(!fotoArea){
+    fotoArea=document.createElement('div');fotoArea.id='mod-fotos-area';
+    document.getElementById('area-player').insertBefore(fotoArea,document.getElementById('area-player').firstChild);
+  }
+  if(m.fotos&&m.fotos.length>0){
+    const slides=m.fotos.map(f=>`<div class="kit-carousel-slide"><img src="${f}" alt="${m.nm}"></div>`).join('');
+    const dots=m.fotos.map((_,i)=>`<div class="kit-dot${i===0?' at':''}" onclick="carouselNavMod(${i})"></div>`).join('');
+    const navs=m.fotos.length>1?`<button class="kit-nav prev" onclick="carouselNavMod(-1,true)">&#8249;</button><button class="kit-nav next" onclick="carouselNavMod(1,true)">&#8250;</button>`:'';
+    fotoArea.innerHTML=`<div class="secao"><div class="stit">Fotos do produto</div><div style="background:#fff;border:1px solid var(--borda);border-radius:12px;overflow:hidden;height:220px;position:relative"><div id="mod-car" data-cur="0">${navs}<div class="kit-carousel" id="mod-car-inner">${slides}</div><div class="kit-dots">${dots}</div></div></div></div>`;
+  }else{fotoArea.innerHTML='';}
+
+  // pdf
+  let pdfArea=document.getElementById('mod-pdf-area');
+  if(!pdfArea){pdfArea=document.createElement('div');pdfArea.id='mod-pdf-area';document.getElementById('area-player').insertBefore(pdfArea,document.getElementById('area-player').firstChild);}
+  if(m.pdf&&m.pdf.nm){
+    pdfArea.innerHTML=`<div class="secao"><div class="stit">Manual do produto</div><a href="${m.pdf.url}" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--borda);border-radius:10px;padding:12px 18px;text-decoration:none;color:var(--txt);font-size:13px;font-weight:500"><svg width="20" height="20" viewBox="0 0 24 24" fill="#DC2626"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>${m.pdf.nm}<span style="margin-left:8px;font-size:11px;color:var(--txt2)">Clique para abrir</span></a></div>`;
+  }else{pdfArea.innerHTML='';}
+
+  const vli=document.getElementById('vl-items');vli.innerHTML='';
+  m.vids.forEach((v,vi)=>{
+    vli.innerHTML+=`<div class="vli" id="vli-${vi}" onclick="playVid(${mi},${vi})"><div class="vn" id="vn-${vi}">${vi+1}</div><div class="vt">${v.t}</div><div class="vp"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div></div>`;
+  });
+  if(m.vids.length>0)playVid(mi,0);
+  document.getElementById('area-player').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function carouselNavMod(dir,isRel){
+  const c=document.getElementById('mod-car');if(!c)return;
+  const total=c.querySelectorAll('.kit-carousel-slide').length;
+  let cur=parseInt(c.dataset.cur||0);
+  cur=isRel?cur+dir:dir;
+  if(cur<0)cur=total-1;if(cur>=total)cur=0;
+  c.dataset.cur=cur;
+  document.getElementById('mod-car-inner').style.transform=`translateX(-${cur*100}%)`;
+  c.querySelectorAll('.kit-dot').forEach((d,i)=>d.classList.toggle('at',i===cur));
+}
+
+function playVid(mi,vi){
+  const v=mods[mi].vids[vi];const id=embedId(v.l);
+  const c=document.getElementById('pl-cont');
+  c.innerHTML=id?`<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>`:`<div class="pv-ph"><div class="pbig"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div><div class="phint">Link não configurado</div></div>`;
+  document.getElementById('pl-tit').textContent=v.t;
+  document.getElementById('pl-sub').textContent=mods[mi].nm+' · Aula '+(vi+1)+' de '+mods[mi].vids.length;
+  document.querySelectorAll('.vli').forEach((el,i)=>{el.classList.toggle('at',i===vi)});
+  document.querySelectorAll('[id^="vn-"]').forEach((el,i)=>{el.classList.toggle('at',i===vi)});
+}
+
+function carouselNav(cardId,dir){
+  const c=document.getElementById('car-'+cardId);
+  if(!c)return;
+  const total=c.querySelectorAll('.kit-carousel-slide').length;
+  let cur=parseInt(c.dataset.cur||0)+dir;
+  if(cur<0)cur=total-1;if(cur>=total)cur=0;
+  c.dataset.cur=cur;
+  c.querySelector('.kit-carousel').style.transform=`translateX(-${cur*100}%)`;
+  c.querySelectorAll('.kit-dot').forEach((d,i)=>d.classList.toggle('at',i===cur));
+}
+
+function renderKits(){
+  const r=document.getElementById('render-kits');r.innerHTML='';
+  linhas.forEach(l=>{
+    let kHTML='';
+    l.kits.forEach((k,ki)=>{
+      const itensHTML=k.itens.map(it=>`<div class="kit-item">${it}</div>`).join('');
+      const fotos=k.fotos&&k.fotos.length>0?k.fotos:[];
+      const cardId=l.nm.replace(/\s/g,'')+ki;
+      let carHTML='';
+      if(fotos.length>0){
+        const slides=fotos.map(f=>`<div class="kit-carousel-slide"><img src="${f}" alt="${k.nm}"></div>`).join('');
+        const dots=fotos.map((_,i)=>`<div class="kit-dot${i===0?' at':''}" onclick="event.stopPropagation();carouselNav('${cardId}',${i}-parseInt(document.getElementById('car-${cardId}').dataset.cur||0))"></div>`).join('');
+        const navs=fotos.length>1?`<button class="kit-nav prev" onclick="event.stopPropagation();carouselNav('${cardId}',-1)">&#8249;</button><button class="kit-nav next" onclick="event.stopPropagation();carouselNav('${cardId}',1)">&#8250;</button>`:'';
+        const count=fotos.length>1?`<div class="kit-foto-count">${fotos.length} fotos</div>`:'';
+        carHTML=`<div id="car-${cardId}" data-cur="0">${navs}<div class="kit-carousel">${slides}</div><div class="kit-dots">${dots}</div>${count}</div>`;
+      }else{
+        carHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px">📦</div>`;
+      }
+      kHTML+=`<div class="kit-card"><div class="kit-img">${carHTML}</div><div class="kit-info"><div class="kit-nome">${k.nm}</div><div class="kit-preco-de">${k.de}</div><div class="kit-preco">${k.por}</div><div class="kit-itens">${itensHTML}</div></div></div>`;
+    });
+    r.innerHTML+=`<div class="secao"><div class="linha-titulo">${l.nm}</div><div class="kits-grid">${kHTML}</div></div>`;
+  });
+  if(linhas.length===0)r.innerHTML='<div class="sobre-box"><p style="color:var(--txt2)">Nenhum kit cadastrado ainda.</p></div>';
+}
+
+
+function renderModsAdm(){
+  const l=document.getElementById('lista-mods');l.innerHTML='';
+  mods.forEach((m,mi)=>{
+    const vHTML=m.vids.map((v,vi)=>`
+      <div class="vrow" id="vrow-${mi}-${vi}">
+        <div class="vnum">${vi+1}</div>
+        <div class="vi" id="vinfo-${mi}-${vi}">
+          <div class="vt2">${v.t}</div>
+          <div class="vl2">${v.l||'Link não configurado'}</div>
+        </div>
+        <div class="acs">
+          <button class="ba-btn" onclick="editarVid(${mi},${vi})" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="ba-btn d" onclick="remVid(${mi},${vi})" title="Remover"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+        </div>
+      </div>`).join('');
+
+    const fotosHTML = m.fotos&&m.fotos.length>0
+      ? m.fotos.map((f,fi)=>`<div style="position:relative;width:70px;height:52px;border-radius:6px;overflow:hidden;border:1px solid var(--borda);flex-shrink:0"><img src="${f}" style="width:100%;height:100%;object-fit:contain;padding:2px"><button onclick="remFotoMod(${mi},${fi})" style="position:absolute;top:1px;right:1px;background:rgba(220,38,38,.8);border:none;border-radius:50%;width:16px;height:16px;cursor:pointer;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;line-height:1">×</button></div>`).join('')
+      : '<span style="font-size:12px;color:var(--txt2)">Nenhuma foto adicionada</span>';
+
+    const pdfHTML = m.pdf&&m.pdf.nm
+      ? `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt)"><svg width="16" height="16" viewBox="0 0 24 24" fill="#DC2626"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>${m.pdf.nm}<button onclick="remPdfMod(${mi})" style="margin-left:auto;background:transparent;border:none;cursor:pointer;color:var(--vermelho);font-size:12px">Remover</button></div>`
+      : '<span style="font-size:12px;color:var(--txt2)">Nenhum manual adicionado</span>';
+
+    l.innerHTML+=`<div class="mac">
+      <div class="mah">
+        <span class="mac-cor" style="background:${corMap[m.cor]}"></span>
+        <span class="mac-nm" id="mod-nm-${mi}">${m.nm}</span>
+        <span class="mac-qt">${m.vids.length} vídeo(s) · ${m.fotos?m.fotos.length:0} foto(s)</span>
+        <div class="mac-acs">
+          <button class="ba-btn" onclick="editarMod(${mi})" title="Editar módulo"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="ba-btn d" onclick="remMod(${mi})" title="Excluir módulo"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+        </div>
+      </div>
+      <div class="mab">
+        <div style="padding:12px 18px;border-bottom:1px solid var(--borda)">
+          <div style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Fotos do produto</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">${fotosHTML}</div>
+          <label style="display:inline-flex;align-items:center;gap:6px;background:var(--cinza);border:1.5px dashed var(--borda);border-radius:7px;padding:7px 14px;cursor:pointer;font-size:12px;color:var(--txt2)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Adicionar fotos
+            <input type="file" accept="image/png,image/jpeg" multiple style="display:none" onchange="addFotosMod(${mi},this)">
+          </label>
+        </div>
+        <div style="padding:12px 18px;border-bottom:1px solid var(--borda)">
+          <div style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Manual / PDF</div>
+          <div style="margin-bottom:10px">${pdfHTML}</div>
+          <label style="display:inline-flex;align-items:center;gap:6px;background:var(--cinza);border:1.5px dashed var(--borda);border-radius:7px;padding:7px 14px;cursor:pointer;font-size:12px;color:var(--txt2)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            ${m.pdf&&m.pdf.nm?'Substituir manual':'Adicionar manual PDF'}
+            <input type="file" accept="application/pdf" style="display:none" onchange="addPdfMod(${mi},this)">
+          </label>
+        </div>
+        <div style="padding:12px 18px;border-bottom:1px solid var(--borda)">
+          <div style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Vídeos de treinamento</div>
+          ${vHTML}
+        </div>
+        <button class="add-v" onclick="abrirAddVid(${mi})">+ Adicionar vídeo</button>
+      </div>
+    </div>`;
+  });
+}
+
+function renderLinhasAdm(){
+  const l=document.getElementById('lista-linhas');l.innerHTML='';
+  linhas.forEach((ln,li)=>{
+    const kHTML=ln.kits.map((k,ki)=>`<div class="kit-admin-row"><div class="kar-img">📦</div><div class="kar-info"><div class="kar-nm">${k.nm}</div><div class="kar-pr">${k.por} <span style="color:var(--txt2);font-weight:400;text-decoration:line-through">${k.de}</span></div><div class="kar-itens">${k.itens.join(' · ')}</div></div><div class="acs"><button class="ba-btn d" onclick="remKit(${li},${ki})"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div></div>`).join('');
+    l.innerHTML+=`<div class="linha-admin"><div class="la-head"><span class="la-nm">${ln.nm}</span><div class="la-acs"><button class="btn sm" onclick="abrirAddKit(${li})">+ Kit</button><button class="ba-btn d" onclick="remLinha(${li})"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div></div>${kHTML}<button class="add-v" onclick="abrirAddKit(${li})">+ Adicionar kit à esta linha</button></div>`;
+  });
+}
+
+
+function addMembro(){
+  const n=document.getElementById('nm-nome').value.trim();
+  const e=document.getElementById('nm-email').value.trim();
+  const emp=document.getElementById('nm-emp').value.trim();
+  if(!n||!e)return;
+  const ini=n.split(' ').slice(0,2).map(x=>x[0]).join('').toUpperCase();
+  const c=avCs[avIdx++%avCs.length];
+  const tr=document.createElement('tr');tr.dataset.status='ativo';
+  tr.innerHTML=`<td><div class="mc"><div class="av ${c}">${ini}</div><div><div class="mn">${n}</div><div class="me">${e}</div></div></div></td><td>${emp||'—'}</td><td><span class="badge ba"><span class="bdot"></span>Ativo</span></td><td>Agora</td><td><div class="acs"><button class="ba-btn tog ativo" onclick="toggleStatus(this)" title="Desativar acesso"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button><button class="ba-btn d" onclick="remMembro(this)" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div></td>`;
+  document.getElementById('tb-membros').prepend(tr);
+  atualizarCtd();fecharMo();t('✅ Membro adicionado!');
+  ['nm-nome','nm-email','nm-emp'].forEach(id=>document.getElementById(id).value='');
+}
+
+function remMembro(btn){
+  if(confirm('Remover este parceiro?')){
+    const tr=btn.closest('tr');
+    const dbId=tr.dataset.dbid;
+    if(dbId)dbRemoverMembroDB(dbId);
+    tr.remove();atualizarCtd();t('Membro removido.');
+  }
+}
+
+function toggleStatus(btn){
+  const tr=btn.closest('tr');
+  const status=tr.dataset.status;
+  const badgeEl=tr.querySelector('.badge');
+  const dotEl=tr.querySelector('.bdot');
+  if(status==='inativo'){
+    tr.dataset.status='ativo';
+    badgeEl.className='badge ba';
+    badgeEl.innerHTML='<span class="bdot"></span>Ativo';
+    btn.classList.remove('inativo');btn.classList.add('ativo');
+    btn.title='Desativar acesso';
+    t('✅ Acesso reativado!');
+  }else{
+    tr.dataset.status='inativo';
+    badgeEl.className='badge bi';
+    badgeEl.innerHTML='<span class="bdot"></span>Inativo';
+    btn.classList.remove('ativo');btn.classList.add('inativo');
+    btn.title='Reativar acesso';
+    t('Acesso desativado.');
+  }
+  atualizarCtd();
+}
+
+function carregarMembrosDB(){
+  dbCarregarMembros().then(function(membros){
+    if(!membros||membros.length===0)return;
+    const tbody=document.getElementById('tb-membros');
+    if(!tbody)return;
+    tbody.innerHTML='';
+    const avCoresLocal=['a1','a2','a3','a4','a5'];
+    membros.forEach(function(m,i){
+      const ini=m.nome.split(' ').slice(0,2).map(function(x){return x[0];}).join('').toUpperCase();
+      const cor=avCoresLocal[i%avCoresLocal.length];
+      const badgeClass=m.status==='ativo'?'ba':m.status==='pendente'?'bp':'bi';
+      const badgeLabel=m.status==='ativo'?'Ativo':m.status==='pendente'?'Pendente':'Inativo';
+      const togClass=m.status==='inativo'?'inativo':'ativo';
+      const tr=document.createElement('tr');
+      tr.dataset.status=m.status||'ativo';
+      tr.dataset.dbid=m.id;
+      tr.innerHTML='<td><div class="mc"><div class="av '+cor+'">'+ini+'</div><div><div class="mn">'+m.nome+'</div><div class="me">'+m.email+'</div></div></div></td>'
+        +'<td>'+(m.empresa||'—')+'</td>'
+        +'<td><span class="badge '+badgeClass+'"><span class="bdot"></span>'+badgeLabel+'</span></td>'
+        +'<td>'+(m.criado_em?new Date(m.criado_em).toLocaleDateString('pt-BR'):'—')+'</td>'
+        +'<td><div class="acs">'
+        +'<button class="ba-btn tog '+togClass+'" onclick="toggleStatus(this)" title="'+(m.status==='inativo'?'Reativar':'Desativar')+'"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button>'
+        +'<button class="ba-btn d" onclick="remMembro(this)" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>'
+        +'</div></td>';
+      tbody.appendChild(tr);
+    });
+    atualizarCtd();
+  });
+}
+
+function atualizarCtd(){
+  const rows=[...document.querySelectorAll('#tb-membros tr')];
+  document.getElementById('tot-total').textContent=rows.length;
+  document.getElementById('tot-at').textContent=rows.filter(r=>r.dataset.status==='ativo').length;
+  document.getElementById('tot-pend').textContent=rows.filter(r=>r.dataset.status==='pendente').length;
+  document.getElementById('tot-in').textContent=rows.filter(r=>r.dataset.status==='inativo').length;
+  document.getElementById('pag-inf').textContent=`Mostrando 1–${rows.length} de ${rows.length}`;
+}
+
+function filtMembros(q){document.querySelectorAll('#tb-membros tr').forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(q.toLowerCase())?'':'none'})}
+function filtStatus(s){document.querySelectorAll('#tb-membros tr').forEach(tr=>{tr.style.display=!s||tr.dataset.status===s?'':'none'})}
+
+// AÇÕES MÓDULOS
+function addMod(){
+  const nm=document.getElementById('nm-mod').value.trim();
+  const cor=document.getElementById('nm-cor').value;
+  if(!nm)return;
+  dbSalvarModulo(nm,cor).then(function(r){
+    if(r&&r[0]){
+      mods.push({id:r[0].id,nm:nm,cor:cor,fotos:[],pdf:{nm:'',url:''},vids:[]});
+    }else{
+      mods.push({nm:nm,cor:cor,fotos:[],pdf:{nm:'',url:''},vids:[]});
+    }
+    renderModsAdm();fecharMo();t('✅ Módulo "'+nm+'" criado!');
+    document.getElementById('nm-mod').value='';
+  });
+}
+function remMod(mi){
+  if(confirm('Excluir módulo "'+mods[mi].nm+'"?')){
+    const modId=mods[mi].id;
+    if(modId)dbRemoverModulo(modId);
+    mods.splice(mi,1);renderModsAdm();t('Módulo removido.');
+  }
+}
+function abrirAddVid(mi){modAtual=mi;document.getElementById('mo-vid-sub').textContent='Módulo: '+mods[mi].nm;document.getElementById('nv-tit').value='';document.getElementById('nv-link').value='';abrirMo('mo-video')}
+function addVideo(){
+  const tt=document.getElementById('nv-tit').value.trim();
+  const lr=document.getElementById('nv-link').value.trim();
+  if(!tt)return;
+  const id=embedId(lr);
+  const l=id?'https://www.youtube.com/embed/'+id:lr;
+  const modId=mods[modAtual].id;
+  const ordem=mods[modAtual].vids.length;
+  if(modId){
+    dbSalvarVideoModulo(modId,tt,l,ordem).then(function(r){
+      const vidId=r&&r[0]?r[0].id:null;
+      mods[modAtual].vids.push({id:vidId,t:tt,l:l});
+      renderModsAdm();fecharMo();t('✅ Vídeo adicionado!');
+    });
+  }else{
+    mods[modAtual].vids.push({t:tt,l:l});
+    renderModsAdm();fecharMo();t('✅ Vídeo adicionado!');
+  }
+}
+function remVid(mi,vi){
+  if(confirm('Remover vídeo "'+mods[mi].vids[vi].t+'"?')){
+    const vidId=mods[mi].vids[vi].id;
+    if(vidId)dbRemoverVideo(vidId);
+    mods[mi].vids.splice(vi,1);renderModsAdm();t('Vídeo removido.');
+  }
+}
+
+function editarMod(mi){
+  document.getElementById('em-idx').value=mi;
+  document.getElementById('em-nm').value=mods[mi].nm;
+  document.getElementById('em-cor').value=mods[mi].cor;
+  abrirMo('mo-edit-mod');
+}
+function salvarEditMod(){
+  const mi=parseInt(document.getElementById('em-idx').value);
+  const nm=document.getElementById('em-nm').value.trim();
+  const cor=document.getElementById('em-cor').value;
+  if(!nm)return;
+  mods[mi].nm=nm;mods[mi].cor=cor;
+  const modId=mods[mi].id;
+  if(modId)dbAtualizarModulo(modId,nm,cor);
+  renderModsAdm();fecharMo();t('✅ Módulo atualizado!');
+}
+
+function editarVid(mi,vi){
+  document.getElementById('ev-mi').value=mi;
+  document.getElementById('ev-vi').value=vi;
+  document.getElementById('mo-edit-vid-sub').textContent='Módulo: '+mods[mi].nm;
+  document.getElementById('ev-tit').value=mods[mi].vids[vi].t;
+  document.getElementById('ev-link').value=mods[mi].vids[vi].l||'';
+  abrirMo('mo-edit-vid');
+}
+function salvarEditVid(){
+  const mi=parseInt(document.getElementById('ev-mi').value);
+  const vi=parseInt(document.getElementById('ev-vi').value);
+  const tt=document.getElementById('ev-tit').value.trim();
+  const lr=document.getElementById('ev-link').value.trim();
+  if(!tt)return;
+  const eid=embedId(lr);
+  const l=eid?'https://www.youtube.com/embed/'+eid:lr;
+  mods[mi].vids[vi].t=tt;
+  mods[mi].vids[vi].l=l;
+  const vidId=mods[mi].vids[vi].id;
+  if(vidId)dbAtualizarVideo(vidId,tt,l);
+  renderModsAdm();fecharMo();t('✅ Vídeo atualizado!');
+}
+
+function addFotosMod(mi,input){
+  if(!mods[mi].fotos)mods[mi].fotos=[];
+  const files=[...input.files];
+  let loaded=0;
+  files.forEach(f=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      mods[mi].fotos.push(e.target.result);
+      loaded++;
+      if(loaded===files.length){renderModsAdm();t('✅ '+files.length+' foto(s) adicionada(s)!');}
+    };
+    reader.readAsDataURL(f);
+  });
+}
+function remFotoMod(mi,fi){
+  mods[mi].fotos.splice(fi,1);renderModsAdm();t('Foto removida.');
+}
+
+function addPdfMod(mi,input){
+  const f=input.files[0];if(!f)return;
+  const url=URL.createObjectURL(f);
+  mods[mi].pdf={nm:f.name,url};
+  renderModsAdm();t('✅ Manual "'+f.name+'" adicionado!');
+}
+function remPdfMod(mi){
+  mods[mi].pdf={nm:'',url:''};renderModsAdm();t('Manual removido.');
+}
+
+// AÇÕES LINHAS/KITS
+function addLinha(){
+  const nm=document.getElementById('nl-nm').value.trim();if(!nm)return;
+  linhas.push({nm,kits:[]});renderLinhasAdm();fecharMo();t('✅ Linha "'+nm+'" criada!');
+  document.getElementById('nl-nm').value='';
+}
+function remLinha(li){if(confirm('Excluir linha "'+linhas[li].nm+'"?')){linhas.splice(li,1);renderLinhasAdm();t('Linha removida.')}}
+let nkFotosBase64=[];
+
+function previewFotos(input){
+  nkFotosBase64=[];
+  const prev=document.getElementById('nk-fotos-preview');
+  prev.innerHTML='';
+  const files=[...input.files];
+  files.forEach((f,i)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      nkFotosBase64.push(e.target.result);
+      const wrap=document.createElement('div');
+      wrap.style.cssText='position:relative;width:80px;height:60px;border-radius:6px;overflow:hidden;border:1px solid var(--borda);background:var(--cinza)';
+      const img=document.createElement('img');
+      img.src=e.target.result;
+      img.style.cssText='width:100%;height:100%;object-fit:contain;padding:2px';
+      const lbl=document.createElement('div');
+      lbl.textContent=i+1;
+      lbl.style.cssText='position:absolute;bottom:2px;right:4px;font-size:10px;font-weight:700;color:var(--txt2)';
+      wrap.appendChild(img);wrap.appendChild(lbl);prev.appendChild(wrap);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+function abrirAddKit(li){
+  linhaAtual=li;nkFotosBase64=[];
+  document.getElementById('mo-kit-sub').textContent='Linha: '+linhas[li].nm;
+  ['nk-nm','nk-de','nk-por','nk-itens'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nk-fotos-preview').innerHTML='';
+  document.getElementById('nk-fotos-input').value='';
+  abrirMo('mo-kit');
+}
+
+function addKit(){
+  const nm=document.getElementById('nk-nm').value.trim();
+  const de=document.getElementById('nk-de').value.trim();
+  const por=document.getElementById('nk-por').value.trim();
+  const itens=document.getElementById('nk-itens').value.trim().split('\n').filter(x=>x.trim());
+  if(!nm)return;
+  linhas[linhaAtual].kits.push({nm,de,por,itens,fotos:[...nkFotosBase64]});
+  nkFotosBase64=[];
+  renderLinhasAdm();fecharMo();t('✅ Kit "'+nm+'" adicionado!');
+}
+function remKit(li,ki){if(confirm('Remover kit "'+linhas[li].kits[ki].nm+'"?')){linhas[li].kits.splice(ki,1);renderLinhasAdm();t('Kit removido.')}}
+
+// AÇÕES PEÇAS
+function addKitPeca(){
+  const nm=document.getElementById('nkp-nm').value.trim();
+  const de=document.getElementById('nkp-de').value.trim();
+  const por=document.getElementById('nkp-por').value.trim();
+  if(!nm)return;
+  kitsPeca.push({nm,de,por,pecas:[]});renderKitsPecaAdm();fecharMo();t('✅ Kit de peças "'+nm+'" criado!');
+  ['nkp-nm','nkp-de','nkp-por'].forEach(id=>document.getElementById(id).value='');
+}
+function abrirAddPeca(ki){kitPecaAtual=ki;document.getElementById('mo-peca-sub').textContent='Kit: '+kitsPeca[ki].nm;['np-cod','np-nm','np-vl','np-vk'].forEach(id=>document.getElementById(id).value='');document.getElementById('np-qt').value=1;abrirMo('mo-peca')}
+function addPeca(){
+  const cod=document.getElementById('np-cod').value.trim();
+  const nm=document.getElementById('np-nm').value.trim();
+  const qt=document.getElementById('np-qt').value;
+  const vl=document.getElementById('np-vl').value.trim();
+  const vk=document.getElementById('np-vk').value.trim();
+  if(!nm)return;
+  kitsPeca[kitPecaAtual].pecas.push({cod,nm,qt,vl:'R$ '+vl,vk:'R$ '+vk});
+  calcTotaisKit(kitPecaAtual);
+  renderKitsPecaAdm();fecharMo();t('✅ Peça "'+nm+'" adicionada!');
+}
+function remPeca(ki,pi){if(confirm('Remover peça "'+kitsPeca[ki].pecas[pi].nm+'"?')){kitsPeca[ki].pecas.splice(pi,1);renderKitsPecaAdm();t('Peça removida.')}}
+
+// EDITAR KIT
+let ekFotosNovas=[];
+function previewFotosEdit(input){
+  ekFotosNovas=[];
+  const prev=document.getElementById('ek-fotos-preview');prev.innerHTML='';
+  [...input.files].forEach((f,i)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      ekFotosNovas.push(e.target.result);
+      const wrap=document.createElement('div');
+      wrap.style.cssText='position:relative;width:70px;height:52px;border-radius:6px;overflow:hidden;border:1px solid var(--borda);background:var(--cinza)';
+      const img=document.createElement('img');img.src=e.target.result;
+      img.style.cssText='width:100%;height:100%;object-fit:contain;padding:2px';
+      wrap.appendChild(img);prev.appendChild(wrap);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+function editarKit(li,ki){
+  const k=linhas[li].kits[ki];
+  document.getElementById('ek-li').value=li;
+  document.getElementById('ek-ki').value=ki;
+  document.getElementById('mo-edit-kit-sub').textContent='Linha: '+linhas[li].nm;
+  document.getElementById('ek-nm').value=k.nm;
+  document.getElementById('ek-de').value=k.de;
+  document.getElementById('ek-por').value=k.por;
+  document.getElementById('ek-itens').value=k.itens.join('\n');
+  // mostrar fotos atuais
+  const prev=document.getElementById('ek-fotos-preview');prev.innerHTML='';
+  (k.fotos||[]).forEach((f,fi)=>{
+    const wrap=document.createElement('div');
+    wrap.style.cssText='position:relative;width:70px;height:52px;border-radius:6px;overflow:hidden;border:1px solid var(--borda);background:var(--cinza)';
+    const img=document.createElement('img');img.src=f;img.style.cssText='width:100%;height:100%;object-fit:contain;padding:2px';
+    const lbl=document.createElement('div');lbl.textContent='atual';
+    lbl.style.cssText='position:absolute;bottom:1px;left:2px;font-size:9px;color:var(--txt2);font-weight:600';
+    wrap.appendChild(img);wrap.appendChild(lbl);prev.appendChild(wrap);
+  });
+  ekFotosNovas=[];
+  document.getElementById('ek-fotos-input').value='';
+  abrirMo('mo-edit-kit');
+}
+
+function salvarEditKit(){
+  const li=parseInt(document.getElementById('ek-li').value);
+  const ki=parseInt(document.getElementById('ek-ki').value);
+  const nm=document.getElementById('ek-nm').value.trim();
+  const de=document.getElementById('ek-de').value.trim();
+  const por=document.getElementById('ek-por').value.trim();
+  const itens=document.getElementById('ek-itens').value.trim().split('\n').filter(x=>x.trim());
+  if(!nm)return;
+  const fotosAtuais=linhas[li].kits[ki].fotos||[];
+  linhas[li].kits[ki]={...linhas[li].kits[ki],nm,de,por,itens,fotos:[...fotosAtuais,...ekFotosNovas]};
+  ekFotosNovas=[];
+  renderLinhasAdm();fecharMo();t('✅ Kit atualizado!');
+}
+
+// EDITAR PEÇA
+function editarPeca(ki,pi){
+  const p=kitsPeca[ki].pecas[pi];
+  document.getElementById('ep-ki').value=ki;
+  document.getElementById('ep-pi').value=pi;
+  document.getElementById('mo-edit-peca-sub').textContent='Kit: '+kitsPeca[ki].nm;
+  document.getElementById('ep-cod').value=p.cod||'';
+  document.getElementById('ep-nm').value=p.nm;
+  document.getElementById('ep-qt').value=p.qt;
+  document.getElementById('ep-vl').value=p.vl.replace('R$ ','');
+  document.getElementById('ep-vk').value=p.vk.replace('R$ ','');
+  abrirMo('mo-edit-peca');
+}
+
+function salvarEditPeca(){
+  const ki=parseInt(document.getElementById('ep-ki').value);
+  const pi=parseInt(document.getElementById('ep-pi').value);
+  const cod=document.getElementById('ep-cod').value.trim();
+  const nm=document.getElementById('ep-nm').value.trim();
+  const qt=document.getElementById('ep-qt').value;
+  const vl=document.getElementById('ep-vl').value.trim();
+  const vk=document.getElementById('ep-vk').value.trim();
+  if(!nm)return;
+  kitsPeca[ki].pecas[pi]={cod,nm,qt,vl:'R$ '+vl,vk:'R$ '+vk};
+  calcTotaisKit(ki);
+  renderKitsPecaAdm();fecharMo();t('✅ Peça atualizada!');
+}
+
+// EDITAR KIT DE PEÇAS
+function editarKitPeca(ki){
+  const k=kitsPeca[ki];
+  document.getElementById('ekp-ki').value=ki;
+  document.getElementById('ekp-nm').value=k.nm;
+  document.getElementById('ekp-de').value=k.de;
+  document.getElementById('ekp-por').value=k.por;
+  abrirMo('mo-edit-kit-peca');
+}
+
+function salvarEditKitPeca(){
+  const ki=parseInt(document.getElementById('ekp-ki').value);
+  const nm=document.getElementById('ekp-nm').value.trim();
+  const de=document.getElementById('ekp-de').value.trim();
+  const por=document.getElementById('ekp-por').value.trim();
+  if(!nm)return;
+  kitsPeca[ki].nm=nm;kitsPeca[ki].de=de;kitsPeca[ki].por=por;
+  renderKitsPecaAdm();fecharMo();t('✅ Kit de peças atualizado!');
+}
+
+// TEXTOS
+// ── KIT VISUAL ──────────────────────────────────────────────────────────────
+let kviFotoBase64='';
+
+function previewKviFoto(input){
+  const f=input.files[0];if(!f)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    kviFotoBase64=e.target.result;
+    document.getElementById('kvi-foto-img').src=e.target.result;
+    document.getElementById('kvi-foto-preview').style.display='block';
+  };
+  reader.readAsDataURL(f);
+}
+
+function renderKvView(){
+  const g=document.getElementById('kv-items-view');if(!g)return;
+  if(kvItens.length===0){g.innerHTML='<p style="font-size:13px;color:var(--txt2)">Nenhum item cadastrado.</p>';return;}
+  g.innerHTML=kvItens.map(k=>`
+    <div class="kv-card">
+      <div class="kv-card-foto">
+        ${k.foto?`<img src="${k.foto}" alt="${k.nm}">`:'<div class="kv-card-foto-placeholder">🪧</div>'}
+      </div>
+      <div class="kv-card-info">
+        <div class="kv-card-nm">${k.nm}</div>
+        <div class="kv-card-desc">${k.desc}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderKvAdm(){
+  const g=document.getElementById('kv-adm-grid');if(!g)return;
+  g.innerHTML=kvItens.map((k,i)=>`
+    <div class="kv-adm-card">
+      <div class="kv-adm-foto">
+        ${k.foto?`<img src="${k.foto}" alt="${k.nm}">`:'<span style="font-size:32px">🪧</span>'}
+      </div>
+      <div class="kv-adm-info">
+        <div class="kv-adm-nm">${k.nm}</div>
+        <div class="kv-adm-desc">${k.desc}</div>
+        <div class="kv-adm-acs">
+          <button class="ba-btn" onclick="editarKvItem(${i})" title="Editar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="ba-btn d" onclick="remKvItem(${i})" title="Remover">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function abrirMoKvNovo(){
+  document.getElementById('kvi-idx').value='-1';
+  document.getElementById('kvi-nm').value='';
+  document.getElementById('kvi-desc').value='';
+  document.getElementById('kvi-foto-preview').style.display='none';
+  document.getElementById('kvi-foto-input').value='';
+  kviFotoBase64='';
+  abrirMo('mo-kv-item');
+}
+
+function editarKvItem(i){
+  const k=kvItens[i];
+  document.getElementById('kvi-idx').value=i;
+  document.getElementById('kvi-nm').value=k.nm;
+  document.getElementById('kvi-desc').value=k.desc;
+  kviFotoBase64=k.foto||'';
+  const prev=document.getElementById('kvi-foto-preview');
+  const img=document.getElementById('kvi-foto-img');
+  if(k.foto){img.src=k.foto;prev.style.display='block';}
+  else{prev.style.display='none';}
+  abrirMo('mo-kv-item');
+}
+
+function salvarKvItem(){
+  const idx=parseInt(document.getElementById('kvi-idx').value);
+  const nm=document.getElementById('kvi-nm').value.trim();
+  const desc=document.getElementById('kvi-desc').value.trim();
+  if(!nm)return;
+  const item={nm,desc,foto:kviFotoBase64};
+  if(idx===-1){kvItens.push(item);}
+  else{kvItens[idx]=item;}
+  renderKvAdm();fecharMo();
+  t(idx===-1?'✅ Item adicionado!':'✅ Item atualizado!');
+  kviFotoBase64='';
+}
+
+function remKvItem(i){
+  if(confirm('Remover "'+kvItens[i].nm+'" do kit visual?')){
+    kvItens.splice(i,1);renderKvAdm();t('Item removido.');
+  }
+}
+
+function criarSenha(){
+  const senha=document.getElementById('nova-senha').value;
+  const confirmar=document.getElementById('confirmar-senha').value;
+  const erro=document.getElementById('criar-senha-erro');
+  if(senha.length<6){erro.textContent='A senha deve ter pelo menos 6 caracteres.';erro.style.display='block';return;}
+  if(senha!==confirmar){erro.textContent='As senhas não coincidem.';erro.style.display='block';return;}
+  erro.style.display='none';
+  sbClient.auth.updateUser({password:senha}).then(function(result){
+    if(result.error){
+      erro.textContent='Erro: '+result.error.message;erro.style.display='block';
+    }else{
+      document.getElementById('tela-criar-senha').style.display='none';
+      const user=result.data.user;
+      const email=user.email;
+      const nome=user.user_metadata&&user.user_metadata.nome?user.user_metadata.nome:email.split('@')[0];
+      aplicarUsuarioLogado(email,nome);
+      t('✅ Senha criada! Bem-vindo ao portal!');
+    }
+  });
+}
+
+// Check if arriving from invite/reset link
+window.addEventListener('load', function(){
+  const hash=window.location.hash;
+  if(hash&&(hash.includes('type=invite')||hash.includes('type=recovery'))){
+    sbClient.auth.getSession().then(function(result){
+      if(result.data.session){
+        document.getElementById('tela-criar-senha').style.display='flex';
+      }
+    });
+  }
+});
+
+function salvarListaBeneficios(){
+  const val=document.getElementById('ed-beneficios-lista').value;
+  const items=val.split('\n').filter(x=>x.trim());
+  const lista=document.getElementById('lista-beneficios');
+  if(!lista)return;
+  lista.innerHTML=items.map(item=>`
+    <li>
+      <div class="bli-dot"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" stroke="#1565C0" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+      ${item.trim()}
+    </li>`).join('');
+  t('✅ Lista de benefícios atualizada!');
+}
+
+function salvarGarBadge(){
+  const val=document.getElementById('ed-gar-badge').value.trim();
+  const badge=document.querySelector('.gc-badge');
+  if(badge)badge.textContent='🎁 '+val;
+  t('✅ Badge atualizado!');
+}
+
+function salvarTexto(elId,inputId){
+  const el=document.getElementById(elId);
+  const val=document.getElementById(inputId).value;
+  if(el)el.textContent=val;
+  dbUpsertConfig(elId,val).then(()=>t('✅ Texto salvo!'));
+}
+
+function renderPecas(){
+  const r=document.getElementById('render-pecas');if(!r)return;r.innerHTML='';
+  kitsPeca.forEach((k,ki)=>{
+    const rowsHTML=k.pecas.map((p,pi)=>`
+      <tr>
+        <td class="tp-cod">${p.cod}</td>
+        <td>${p.nm}</td>
+        <td style="text-align:center">${p.qt}</td>
+        <td>${p.vl}</td>
+        <td class="tp-vkit">${p.vk}</td>
+      </tr>`).join('');
+    r.innerHTML+=`
+      <div class="pecas-section">
+        <div class="tabela-pecas-wrap">
+          <div class="tp-header">
+            <span class="tp-titulo">${k.nm}</span>
+            <div class="tp-precos"><span class="tp-de">De ${k.de}</span><span class="tp-por">Por ${k.por}</span></div>
+          </div>
+          <table class="tp">
+            <thead><tr><th>Código</th><th>Descrição</th><th style="text-align:center">Qtd</th><th>Valor</th><th>Valor Parceiro</th></tr></thead>
+            <tbody>${rowsHTML}</tbody>
+            <tfoot><tr class="tp-total-row"><td colspan="4">Total</td><td class="green">${k.por}</td></tr></tfoot>
+          </table>
+        </div>
+      </div>`;
+  });
+}
+
+function calcTotaisKit(ki){
+  // Sum all peças values
+  let totalVl=0, totalVk=0;
+  kitsPeca[ki].pecas.forEach(p=>{
+    const vl=parseFloat((p.vl||'0').replace('R$ ','').replace('.','').replace(',','.'));
+    const vk=parseFloat((p.vk||'0').replace('R$ ','').replace('.','').replace(',','.'));
+    if(!isNaN(vl))totalVl+=vl;
+    if(!isNaN(vk))totalVk+=vk;
+  });
+  // Format as R$ X.XXX,XX
+  const fmt=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  kitsPeca[ki].de=fmt(totalVl);
+  kitsPeca[ki].por=fmt(totalVk);
+}
+
+function recalcularTodos(){
+  kitsPeca.forEach((_,ki)=>calcTotaisKit(ki));
+}
+
+function renderKitsPecaAdm(){
+  const l=document.getElementById('lista-kits-peca');if(!l)return;l.innerHTML='';
+  kitsPeca.forEach((k,ki)=>{
+    const pHTML=k.pecas.map((p,pi)=>`
+      <tr>
+        <td class="pa-cod">${p.cod}</td>
+        <td>${p.nm}</td>
+        <td>${p.qt}</td>
+        <td>${p.vl}</td>
+        <td class="pa-vkit">${p.vk}</td>
+        <td>
+          <div class="acs">
+            <button class="ba-btn" onclick="editarPeca(${ki},${pi})" title="Editar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="ba-btn d" onclick="remPeca(${ki},${pi})" title="Excluir">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>`).join('');
+    l.innerHTML+=`
+      <div class="peca-admin-wrap">
+        <div class="pa-head">
+          <span class="pa-nm">${k.nm} — De ${k.de} por ${k.por}</span>
+          <div style="display:flex;gap:8px">
+            <button class="btn sm out" style="color:#fff;border-color:rgba(255,255,255,.3)" onclick="editarKitPeca(${ki})">✏️ Editar kit</button>
+            <button class="btn sm" onclick="abrirAddPeca(${ki})">+ Peça</button>
+          </div>
+        </div>
+        <table class="pa">
+          <thead><tr><th>Código</th><th>Nome</th><th>Qtd</th><th>Valor</th><th>Parceiro</th><th></th></tr></thead>
+          <tbody>${pHTML}</tbody>
+        </table>
+        <button class="pa-add" onclick="abrirAddPeca(${ki})">+ Adicionar peça</button>
+      </div>`;
+  });
+}
+function abrirAddPeca(ki){
+  kitPecaAtual=ki;
+  document.getElementById('mo-peca-sub').textContent='Kit: '+kitsPeca[ki].nm;
+  ['np-cod','np-nm','np-vl','np-vk'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('np-qt').value=1;
+  abrirMo('mo-peca');
+}
+function addPeca(){
+  const cod=document.getElementById('np-cod').value.trim();
+  const nm=document.getElementById('np-nm').value.trim();
+  const qt=document.getElementById('np-qt').value;
+  const vl=document.getElementById('np-vl').value.trim();
+  const vk=document.getElementById('np-vk').value.trim();
+  if(!nm)return;
+  kitsPeca[kitPecaAtual].pecas.push({cod,nm,qt,vl:'R$ '+vl,vk:'R$ '+vk});
+  renderKitsPecaAdm();fecharMo();t('✅ Peça "'+nm+'" adicionada!');
+}
+function remPeca(ki,pi){
+  if(confirm('Remover a peça "'+kitsPeca[ki].pecas[pi].nm+'"?')){
+    kitsPeca[ki].pecas.splice(pi,1);calcTotaisKit(ki);renderKitsPecaAdm();t('Peça removida.');
+  }
+}
+function editarPeca(ki,pi){
+  const p=kitsPeca[ki].pecas[pi];
+  document.getElementById('ep-ki').value=ki;
+  document.getElementById('ep-pi').value=pi;
+  document.getElementById('mo-edit-peca-sub').textContent='Kit: '+kitsPeca[ki].nm;
+  document.getElementById('ep-cod').value=p.cod||'';
+  document.getElementById('ep-nm').value=p.nm;
+  document.getElementById('ep-qt').value=p.qt;
+  document.getElementById('ep-vl').value=p.vl.replace('R$ ','');
+  document.getElementById('ep-vk').value=p.vk.replace('R$ ','');
+  abrirMo('mo-edit-peca');
+}
+function salvarEditPeca(){
+  const ki=parseInt(document.getElementById('ep-ki').value);
+  const pi=parseInt(document.getElementById('ep-pi').value);
+  const cod=document.getElementById('ep-cod').value.trim();
+  const nm=document.getElementById('ep-nm').value.trim();
+  const qt=document.getElementById('ep-qt').value;
+  const vl=document.getElementById('ep-vl').value.trim();
+  const vk=document.getElementById('ep-vk').value.trim();
+  if(!nm)return;
+  kitsPeca[ki].pecas[pi]={cod,nm,qt,vl:'R$ '+vl,vk:'R$ '+vk};
+  renderKitsPecaAdm();fecharMo();t('✅ Peça atualizada!');
+}
+function editarKitPeca(ki){
+  const k=kitsPeca[ki];
+  document.getElementById('ekp-ki').value=ki;
+  document.getElementById('ekp-nm').value=k.nm;
+  document.getElementById('ekp-de').value=k.de;
+  document.getElementById('ekp-por').value=k.por;
+  abrirMo('mo-edit-kit-peca');
+}
+function salvarEditKitPeca(){
+  const ki=parseInt(document.getElementById('ekp-ki').value);
+  const nm=document.getElementById('ekp-nm').value.trim();
+  const de=document.getElementById('ekp-de').value.trim();
+  const por=document.getElementById('ekp-por').value.trim();
+  if(!nm)return;
+  kitsPeca[ki].nm=nm;kitsPeca[ki].de=de;kitsPeca[ki].por=por;
+  renderKitsPecaAdm();fecharMo();t('✅ Kit de peças atualizado!');
+}
+function addKitPeca(){
+  const nm=document.getElementById('nkp-nm').value.trim();
+  const de=document.getElementById('nkp-de').value.trim();
+  const por=document.getElementById('nkp-por').value.trim();
+  if(!nm)return;
+  kitsPeca.push({nm,de,por,pecas:[]});
+  renderKitsPecaAdm();fecharMo();t('✅ Kit "'+nm+'" criado!');
+  ['nkp-nm','nkp-de','nkp-por'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderServicos(){
+  const r=document.getElementById('render-servicos');if(!r)return;
+  r.innerHTML=`<div class="tabela-pecas-wrap"><table class="tp">
+    <thead><tr><th>Código</th><th>Serviço</th><th>Valor</th></tr></thead>
+    <tbody>${servicos.map(s=>`<tr><td class="tp-cod">${s.cod}</td><td>${s.nm}</td><td class="tp-vkit">${s.vl}</td></tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function renderServicosAdm(){
+  const tb=document.getElementById('tb-servicos');if(!tb)return;
+  tb.innerHTML=servicos.map((s,i)=>`
+    <tr>
+      <td>${s.nm}</td>
+      <td style="color:var(--verde);font-weight:600">${s.vl}</td>
+      <td style="color:var(--txt2);font-size:12px">${s.cod}</td>
+      <td><div class="acs">
+        <button class="ba-btn" onclick="editarServico(${i})" title="Editar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="ba-btn d" onclick="remServico(${i})" title="Remover">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function addServico(){
+  const nm=document.getElementById('ns-nm').value.trim();
+  const vl=document.getElementById('ns-vl').value.trim();
+  const cod=document.getElementById('ns-cod').value.trim();
+  if(!nm||!vl)return;
+  const newSvc={cod,nm,vl:'R$ '+vl};
+  servicos.push(newSvc);
+  dbSalvarServico(newSvc);
+  renderServicosAdm();fecharMo();t('✅ Serviço adicionado!');
+  ['ns-nm','ns-vl','ns-cod'].forEach(id=>document.getElementById(id).value='');
+}
+
+function remServico(i){
+  if(confirm('Remover "'+servicos[i].nm+'"?')){
+    const svcId=servicos[i].id;
+    servicos.splice(i,1);
+    if(svcId)dbRemoverServicoDB(svcId);
+    renderServicosAdm();t('Serviço removido.');
+  }
+}
+
+function editarServico(i){
+  const s=servicos[i];
+  document.getElementById('es-idx').value=i;
+  document.getElementById('es-nm').value=s.nm;
+  document.getElementById('es-vl').value=s.vl.replace('R$ ','');
+  document.getElementById('es-cod').value=s.cod||'';
+  abrirMo('mo-edit-servico');
+}
+
+function salvarEditServico(){
+  const i=parseInt(document.getElementById('es-idx').value);
+  const nm=document.getElementById('es-nm').value.trim();
+  const vl=document.getElementById('es-vl').value.trim();
+  const cod=document.getElementById('es-cod').value.trim();
+  if(!nm||!vl)return;
+  servicos[i]={cod,nm,vl:'R$ '+vl};
+  renderServicosAdm();fecharMo();t('✅ Serviço atualizado!');
+}
+
+function uploadGarantia(input){
+  const f=input.files[0];if(!f)return;
+  garantiaUrl=URL.createObjectURL(f);
+  garantiaFileName=f.name;
+  // Update admin preview
+  const prev=document.getElementById('garantia-upload-preview');
+  const fname=document.getElementById('garantia-filename');
+  if(prev){prev.style.display='block';}
+  if(fname){fname.textContent=f.name;}
+  // Update member download button
+  const btn=document.getElementById('garantia-btn');
+  const info=document.getElementById('garantia-info');
+  if(btn){btn.href=garantiaUrl;btn.setAttribute('download',f.name);}
+  if(info){info.textContent=f.name+' — clique para baixar';}
+  t('✅ Ficha de garantia carregada! Parceiros já podem baixar.');
+}
+
+let vpThumbs={};
+let vpThumbFiles={};
+
+function preencherCamposVideos(){
+  // Preenche os campos com os dados já salvos no Supabase
+  dbCarregarConfigs().then(function(configs){
+    ['sobre','beneficios','pecas','treinamentos','servicos'].forEach(function(sec){
+      // Preenche o campo de link
+      const input=document.getElementById('ed-vp-'+sec);
+      if(input&&configs['video_'+sec])input.value=configs['video_'+sec];
+      // Mostra indicador de thumbnail salva
+      const thumb=configs['thumb_'+sec];
+      if(thumb&&thumb.length>100){
+        const img=document.getElementById('thumb-prev-'+sec);
+        if(img){img.src=thumb;img.style.display='block';}
+        vpThumbFiles[sec]=thumb;
+      }
+    });
+    // Curso
+    const cursoInput=document.getElementById('ed-curso-video-2');
+    if(cursoInput&&configs['video_curso'])cursoInput.value=configs['video_curso'];
+    const cursoThumb=configs['thumb_curso'];
+    if(cursoThumb){
+      const img=document.getElementById('thumb-prev-curso');
+      if(img){img.src=cursoThumb;img.style.display='block';}
+      vpThumbFiles['curso']=cursoThumb;
+    }
+  });
+}
+
+function salvarVideoSecao(secao){
+  const url=document.getElementById('ed-vp-'+secao).value.trim();
+  const id=embedId(url);
+  const cont=document.getElementById('vp-cont-'+secao);
+  if(!cont)return;
+  if(id){
+    // Store video id
+    vpThumbs[secao]={id, thumb: vpThumbFiles[secao]||''};
+    renderVideoPlayer(secao, id, vpThumbFiles[secao]||'');
+    dbUpsertConfig('video_'+secao, url);
+    if(vpThumbFiles[secao])dbUpsertConfig('thumb_'+secao, vpThumbFiles[secao]);
+    t('✅ Vídeo salvo!');
+  }else{
+    t('❌ Link inválido. Use um link do YouTube.');
+  }
+}
+
+function renderVideoPlayer(secao, videoId, thumbSrc){
+  const cont=document.getElementById('vp-cont-'+secao);
+  if(!cont)return;
+  if(thumbSrc){
+    // Show custom thumbnail with play button
+    cont.innerHTML=`
+      <div class="vp-thumb" onclick="playVideoSecao('${secao}','${videoId}',this)">
+        <img src="${thumbSrc}" alt="Thumbnail">
+        <div class="vp-thumb-overlay">
+          <div class="vp-play-circle">
+            <svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg>
+          </div>
+        </div>
+      </div>`;
+  }else{
+    cont.innerHTML=`<iframe src="https://www.youtube.com/embed/${videoId}?rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>`;
+  }
+}
+
+function playVideoSecao(secao, videoId, el){
+  const contId=secao==='curso'?'curso-player-cont':'vp-cont-'+secao;
+  const cont=document.getElementById(contId);
+  if(!cont)return;
+  cont.innerHTML='<iframe src="https://www.youtube.com/embed/'+videoId+'?autoplay=1&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>';
+}
+
+function uploadThumbSecao(secao, input){
+  const f=input.files[0];if(!f)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    vpThumbFiles[secao]=e.target.result;
+    // Show preview
+    const prev=document.getElementById('thumb-prev-'+secao);
+    if(prev){prev.src=e.target.result;prev.style.display='block';}
+    t('✅ Thumbnail carregada! Clique em "Salvar e aplicar" para confirmar.');
+  };
+  reader.readAsDataURL(f);
+}
+
+function salvarVideoCurso2(){
+  const url=document.getElementById('ed-curso-video-2').value.trim();
+  const id=embedId(url);
+  const cont=document.getElementById('curso-player-cont');
+  if(!cont)return;
+  if(id){
+    const thumb=vpThumbFiles['curso']||'';
+    if(thumb){
+      cont.innerHTML='<div class="vp-thumb" onclick="playVideoSecao(\'curso\',\''+id+'\',this)"><img src="'+thumb+'" alt="Thumbnail"><div class="vp-thumb-overlay"><div class="vp-play-circle"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div></div></div>';
+    }else{
+      cont.innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>';
+    }
+    dbUpsertConfig('video_curso',url);
+    if(thumb)dbUpsertConfig('thumb_curso',thumb);
+    t('✅ Vídeo do curso salvo!');
+  }else{t('❌ Link inválido.');}
+}
+
+function salvarVideoCurso(){
+  const url=document.getElementById('ed-curso-video').value.trim();
+  const id=embedId(url);
+  const cont=document.getElementById('curso-player-cont');
+  if(id){
+    cursoVideoId=id;
+    cont.innerHTML=`<iframe src="https://www.youtube.com/embed/${id}?rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>`;
+    t('✅ Vídeo do curso salvo!');
+  }else{
+    t('❌ Link inválido. Use um link do YouTube.');
+  }
+}
+</script>
+</body>
+</html>
