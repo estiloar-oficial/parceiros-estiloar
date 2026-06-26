@@ -1013,6 +1013,34 @@ Participação em treinamentos, lives técnicas e atualizações constantes.</te
   <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn g" onclick="addVideo()">Adicionar</button></div>
 </div></div>
 
+<div class="mo" id="mo-capitulo"><div class="modal">
+  <h3>Novo capítulo</h3><p class="modal-sub" id="nc-mod-sub">Adicionando ao módulo.</p>
+  <div class="campo"><label>Nome do capítulo</label><input id="nc-nm" placeholder="Ex: Apresentação, Instalação..."></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn g" onclick="addCapitulo()">Adicionar</button></div>
+</div></div>
+
+<div class="mo" id="mo-edit-capitulo"><div class="modal">
+  <h3>Editar capítulo</h3>
+  <input type="hidden" id="ec-idx">
+  <div class="campo"><label>Nome do capítulo</label><input id="ec-nm" placeholder="Ex: Apresentação"></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn" onclick="salvarEditCapitulo()">Salvar</button></div>
+</div></div>
+
+<div class="mo" id="mo-vid-cap"><div class="modal">
+  <h3>Adicionar vídeo</h3><p class="modal-sub" id="nv-cap-sub">Adicionando ao capítulo.</p>
+  <div class="campo"><label>Título do vídeo</label><input id="nv-tit-cap" placeholder="Ex: Aula 1 - Introdução"></div>
+  <div class="campo"><label>Link YouTube</label><input id="nv-link-cap" placeholder="https://youtube.com/watch?v=..."></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn g" onclick="addVidCap()">Adicionar</button></div>
+</div></div>
+
+<div class="mo" id="mo-edit-vid-cap"><div class="modal">
+  <h3>Editar vídeo</h3>
+  <input type="hidden" id="ev-cap-mi"><input type="hidden" id="ev-cap-ci"><input type="hidden" id="ev-cap-vi">
+  <div class="campo"><label>Título do vídeo</label><input id="ev-cap-tit" placeholder="Ex: Aula 1 - Introdução"></div>
+  <div class="campo"><label>Link YouTube</label><input id="ev-cap-link" placeholder="https://youtube.com/watch?v=..."></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn" onclick="salvarEditVidCap()">Salvar</button></div>
+</div></div>
+
 <div class="mo" id="mo-edit-mod"><div class="modal">
   <h3>Editar módulo</h3><p class="modal-sub">Altere o nome e a cor do módulo.</p>
   <input type="hidden" id="em-idx">
@@ -1285,6 +1313,20 @@ async function dbRemoverPecaDB(id){
   return sbFetch('pecas?id=eq.'+id,'DELETE');
 }
 
+// CAPÍTULOS
+async function dbSalvarCapitulo(moduloId, nome, ordem){
+  return sbFetch('capitulos','POST',{modulo_id:moduloId,nome:nome,ordem:ordem});
+}
+async function dbAtualizarCapitulo(id, nome){
+  return sbFetch('capitulos?id=eq.'+id,'PATCH',{nome:nome});
+}
+async function dbRemoverCapitulo(id){
+  return sbFetch('capitulos?id=eq.'+id,'DELETE');
+}
+async function dbSalvarVideoCapitulo(moduloId, capituloId, titulo, link, ordem){
+  return sbFetch('videos','POST',{modulo_id:moduloId,capitulo_id:capituloId,titulo:titulo,link:link,ordem:ordem});
+}
+
 // MÓDULOS
 async function dbSalvarModulo(nm,cor){
   const r=await sbFetch('modulos','POST',{nome:nm,cor:cor,ordem:mods.length});
@@ -1447,17 +1489,30 @@ async function inicializarPortal(){
       console.log('KitsPeca carregados do DB:', kitsPeca.length, 'kits, primeiro kit id:', kitsPeca[0]?kitsPeca[0].id:'none');
     }
 
-    // Carregar módulos do banco
-    const dbMods=await sbFetch('modulos?select=*,videos(*),fotos_modulo(*)&order=ordem.asc');
+    // Carregar módulos do banco (com capítulos e vídeos)
+    const dbMods=await sbFetch('modulos?select=*,fotos_modulo(*),capitulos(*,videos(*))&order=ordem.asc');
     if(dbMods&&dbMods.length>0){
       mods=dbMods.map(function(m){
+        const caps=(m.capitulos||[]).sort(function(a,b){return a.ordem-b.ordem;}).map(function(c){
+          return {
+            id:c.id,
+            nm:c.nome,
+            ordem:c.ordem,
+            vids:(c.videos||[]).sort(function(a,b){return a.ordem-b.ordem;}).map(function(v){
+              return {id:v.id,t:v.titulo,l:v.link||'',capitulo_id:v.capitulo_id};
+            })
+          };
+        });
+        // Also load videos without chapter (legacy)
+        const vidsLegacy=(m.videos||[]).filter(function(v){return !v.capitulo_id;}).sort(function(a,b){return a.ordem-b.ordem;}).map(function(v){
+          return {id:v.id,t:v.titulo,l:v.link||''};
+        });
         return {
           id:m.id, nm:m.nome, cor:m.cor||'t1',
           pdf:{nm:m.pdf_nome||'',url:m.pdf_url||''},
           fotos:(m.fotos_modulo||[]).map(function(f){return f.foto_base64;}).filter(Boolean),
-          vids:(m.videos||[]).sort(function(a,b){return a.ordem-b.ordem;}).map(function(v){
-            return {id:v.id,t:v.titulo,l:v.link||''};
-          })
+          caps:caps,
+          vids:vidsLegacy
         };
       });
       console.log('Módulos carregados do Supabase:',mods.length);
@@ -1741,10 +1796,24 @@ function abrirMod(mi){
   }else{pdfArea.innerHTML='';}
 
   const vli=document.getElementById('vl-items');vli.innerHTML='';
-  m.vids.forEach(function(v,vi){
-    vli.innerHTML+='<div class="vli" id="vli-'+vi+'" onclick="playVid('+mi+','+vi+')"><div class="vn" id="vn-'+vi+'">'+(vi+1)+'</div><div class="vt">'+v.t+'</div><div class="vp"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div></div>';
-  });
-  if(m.vids.length>0)playVid(mi,0);
+  const caps=m.caps||[];
+  if(caps.length>0){
+    // Show chapters with their videos
+    caps.forEach(function(cap,ci){
+      vli.innerHTML+='<div style="padding:8px 12px;background:rgba(21,101,192,.08);font-size:11px;font-weight:700;color:var(--azul);text-transform:uppercase;letter-spacing:.06em;margin-top:'+(ci>0?'8px':'0')+'px;border-radius:6px">'+(ci+1)+'. '+cap.nm+'</div>';
+      cap.vids.forEach(function(v,vi){
+        const globalIdx=ci*100+vi;
+        vli.innerHTML+='<div class="vli" id="vli-'+ci+'-'+vi+'" onclick="playVidCap('+mi+','+ci+','+vi+')"><div class="vn">'+(vi+1)+'</div><div class="vt">'+v.t+'</div><div class="vp"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div></div>';
+      });
+    });
+    if(caps[0]&&caps[0].vids.length>0)playVidCap(mi,0,0);
+  }else if(m.vids&&m.vids.length>0){
+    // Legacy: show videos without chapters
+    m.vids.forEach(function(v,vi){
+      vli.innerHTML+='<div class="vli" id="vli-'+vi+'" onclick="playVid('+mi+','+vi+')"><div class="vn" id="vn-'+vi+'">'+(vi+1)+'</div><div class="vt">'+v.t+'</div><div class="vp"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div></div>';
+    });
+    if(m.vids.length>0)playVid(mi,0);
+  }
   area.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -1757,6 +1826,22 @@ function carouselNavMod(dir,isRel){
   c.dataset.cur=cur;
   document.getElementById('mod-car-inner').style.transform=`translateX(-${cur*100}%)`;
   c.querySelectorAll('.kit-dot').forEach((d,i)=>d.classList.toggle('at',i===cur));
+}
+
+function playVidCap(mi,ci,vi){
+  const m=mods[mi];const cap=m.caps[ci];const v=cap.vids[vi];
+  // Highlight selected
+  document.querySelectorAll('.vli').forEach(function(el){el.classList.remove('at');});
+  const el=document.getElementById('vli-'+ci+'-'+vi);
+  if(el)el.classList.add('at');
+  // Update title
+  const titEl=document.getElementById('pl-vid-nm');
+  if(titEl)titEl.textContent=v.t;
+  const subEl=document.getElementById('pl-vid-sub');
+  if(subEl)subEl.textContent=cap.nm+' · Vídeo '+(vi+1)+' de '+cap.vids.length;
+  // Play video
+  const iframe=document.getElementById('pl-iframe');
+  if(iframe&&v.l)iframe.src=v.l+'?autoplay=0&rel=0';
 }
 
 function playVid(mi,vi){
@@ -1808,19 +1893,16 @@ function renderKits(){
 
 function renderModsAdm(){
   const l=document.getElementById('lista-mods');l.innerHTML='';
-  mods.forEach((m,mi)=>{
-    const vHTML=m.vids.map((v,vi)=>`
-      <div class="vrow" id="vrow-${mi}-${vi}">
-        <div class="vnum">${vi+1}</div>
-        <div class="vi" id="vinfo-${mi}-${vi}">
-          <div class="vt2">${v.t}</div>
-          <div class="vl2">${v.l||'Link não configurado'}</div>
-        </div>
-        <div class="acs">
-          <button class="ba-btn" onclick="editarVid(${mi},${vi})" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="ba-btn d" onclick="remVid(${mi},${vi})" title="Remover"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
-        </div>
-      </div>`).join('');
+  mods.forEach(function(m,mi){
+    // Build chapters HTML
+    const caps=m.caps||[];
+    const capsHTML=caps.map(function(cap,ci){
+      const vidsHTML=cap.vids.map(function(v,vi){
+        return '<div class="vrow"><div class="vnum">'+(vi+1)+'</div><div class="vi"><div class="vt2">'+v.t+'</div><div class="vl2">'+(v.l||'Link não configurado')+'</div></div><div class="acs"><button class="ba-btn" onclick="editarVidCap('+mi+','+ci+','+vi+')" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ba-btn d" onclick="remVidCap('+mi+','+ci+','+vi+')" title="Remover"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div></div>';
+      }).join('');
+      return '<div style="background:var(--cinza);border-radius:8px;margin-bottom:10px;overflow:hidden"><div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(21,101,192,.08)"><span style="font-size:13px;font-weight:600;color:var(--azul)">'+(ci+1)+'. '+cap.nm+'</span><div class="acs"><button class="ba-btn" onclick="editarCapitulo('+mi+','+ci+')" title="Editar capítulo"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ba-btn d" onclick="remCapitulo('+mi+','+ci+')" title="Remover capítulo"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div></div><div style="padding:8px 14px">'+(vidsHTML||'<span style="font-size:12px;color:var(--txt2)">Nenhum vídeo neste capítulo</span>')+'<button class="add-v" onclick="abrirAddVidCap('+mi+','+ci+')">+ Adicionar vídeo</button></div></div>';
+    }).join('');
+    const vHTML='';// legacy vids not shown in new structure
 
     const fotosHTML = m.fotos&&m.fotos.length>0
       ? m.fotos.map((f,fi)=>`<div style="position:relative;width:70px;height:52px;border-radius:6px;overflow:hidden;border:1px solid var(--borda);flex-shrink:0"><img src="${f}" style="width:100%;height:100%;object-fit:contain;padding:2px"><button onclick="remFotoMod(${mi},${fi})" style="position:absolute;top:1px;right:1px;background:rgba(220,38,38,.8);border:none;border-radius:50%;width:16px;height:16px;cursor:pointer;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;line-height:1">×</button></div>`).join('')
@@ -1834,7 +1916,7 @@ function renderModsAdm(){
       <div class="mah">
         <span class="mac-cor" style="background:${corMap[m.cor]}"></span>
         <span class="mac-nm" id="mod-nm-${mi}">${m.nm}</span>
-        <span class="mac-qt">${m.vids.length} vídeo(s) · ${m.fotos?m.fotos.length:0} foto(s)</span>
+        <span class="mac-qt">${(m.caps||[]).length} capítulo(s) · ${m.fotos?m.fotos.length:0} foto(s)</span>
         <div class="mac-acs">
           <button class="ba-btn" onclick="editarMod(${mi})" title="Editar módulo"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
           <button class="ba-btn d" onclick="remMod(${mi})" title="Excluir módulo"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
@@ -1860,10 +1942,10 @@ function renderModsAdm(){
           </label>
         </div>
         <div style="padding:12px 18px;border-bottom:1px solid var(--borda)">
-          <div style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Vídeos de treinamento</div>
-          ${vHTML}
+          <div style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Capítulos e vídeos</div>
+          ${capsHTML}
         </div>
-        <button class="add-v" onclick="abrirAddVid(${mi})">+ Adicionar vídeo</button>
+        <button class="add-v" onclick="abrirAddCapitulo(${mi})">+ Adicionar capítulo</button>
       </div>
     </div>`;
   });
@@ -1999,6 +2081,128 @@ function filtMembros(q){document.querySelectorAll('#tb-membros tr').forEach(tr=>
 function filtStatus(s){document.querySelectorAll('#tb-membros tr').forEach(tr=>{tr.style.display=!s||tr.dataset.status===s?'':'none'})}
 
 // AÇÕES MÓDULOS
+// ── CAPÍTULOS ────────────────────────────────────────────────────────────────
+let capModAtual=null;
+let capIdxAtual=null;
+
+function abrirAddCapitulo(mi){
+  capModAtual=mi;
+  document.getElementById('nc-mod-sub').textContent='Módulo: '+mods[mi].nm;
+  document.getElementById('nc-nm').value='';
+  abrirMo('mo-capitulo');
+}
+
+function addCapitulo(){
+  const nm=document.getElementById('nc-nm').value.trim();
+  if(!nm)return;
+  const mi=capModAtual;
+  if(!mods[mi].caps)mods[mi].caps=[];
+  const ordem=mods[mi].caps.length;
+  const novoCAp={nm:nm,ordem:ordem,vids:[]};
+  mods[mi].caps.push(novoCAp);
+  // Save to DB
+  const modId=mods[mi].id;
+  if(modId){
+    dbSalvarCapitulo(modId,nm,ordem).then(function(r){
+      if(r&&r[0]&&r[0].id)novoCAp.id=r[0].id;
+    });
+  }
+  renderModsAdm();fecharMo();t('✅ Capítulo "'+nm+'" adicionado!');
+  document.getElementById('nc-nm').value='';
+}
+
+function editarCapitulo(mi,ci){
+  capModAtual=mi;capIdxAtual=ci;
+  document.getElementById('ec-idx').value=ci;
+  document.getElementById('ec-nm').value=mods[mi].caps[ci].nm;
+  abrirMo('mo-edit-capitulo');
+}
+
+function salvarEditCapitulo(){
+  const mi=capModAtual;
+  const ci=parseInt(document.getElementById('ec-idx').value);
+  const nm=document.getElementById('ec-nm').value.trim();
+  if(!nm)return;
+  mods[mi].caps[ci].nm=nm;
+  const capId=mods[mi].caps[ci].id;
+  if(capId)dbAtualizarCapitulo(capId,nm);
+  renderModsAdm();fecharMo();t('✅ Capítulo atualizado!');
+}
+
+function remCapitulo(mi,ci){
+  if(confirm('Remover capítulo "'+mods[mi].caps[ci].nm+'" e todos seus vídeos?')){
+    const capId=mods[mi].caps[ci].id;
+    if(capId)dbRemoverCapitulo(capId);
+    mods[mi].caps.splice(ci,1);
+    renderModsAdm();t('Capítulo removido.');
+  }
+}
+
+function abrirAddVidCap(mi,ci){
+  capModAtual=mi;capIdxAtual=ci;
+  document.getElementById('nv-cap-sub').textContent=mods[mi].nm+' › '+mods[mi].caps[ci].nm;
+  document.getElementById('nv-tit-cap').value='';
+  document.getElementById('nv-link-cap').value='';
+  abrirMo('mo-vid-cap');
+}
+
+function addVidCap(){
+  const tt=document.getElementById('nv-tit-cap').value.trim();
+  const lr=document.getElementById('nv-link-cap').value.trim();
+  if(!tt)return;
+  const id=embedId(lr);
+  const l=id?'https://www.youtube.com/embed/'+id:lr;
+  const mi=capModAtual;const ci=capIdxAtual;
+  const ordem=mods[mi].caps[ci].vids.length;
+  const novoVid={t:tt,l:l};
+  mods[mi].caps[ci].vids.push(novoVid);
+  // Save to DB
+  const modId=mods[mi].id;
+  const capId=mods[mi].caps[ci].id;
+  if(modId&&capId){
+    dbSalvarVideoCapitulo(modId,capId,tt,l,ordem).then(function(r){
+      if(r&&r[0]&&r[0].id)novoVid.id=r[0].id;
+    });
+  }
+  renderModsAdm();fecharMo();t('✅ Vídeo adicionado!');
+}
+
+function editarVidCap(mi,ci,vi){
+  capModAtual=mi;capIdxAtual=ci;
+  const v=mods[mi].caps[ci].vids[vi];
+  document.getElementById('ev-cap-mi').value=mi;
+  document.getElementById('ev-cap-ci').value=ci;
+  document.getElementById('ev-cap-vi').value=vi;
+  document.getElementById('ev-cap-tit').value=v.t;
+  document.getElementById('ev-cap-link').value=v.l||'';
+  abrirMo('mo-edit-vid-cap');
+}
+
+function salvarEditVidCap(){
+  const mi=parseInt(document.getElementById('ev-cap-mi').value);
+  const ci=parseInt(document.getElementById('ev-cap-ci').value);
+  const vi=parseInt(document.getElementById('ev-cap-vi').value);
+  const tt=document.getElementById('ev-cap-tit').value.trim();
+  const lr=document.getElementById('ev-cap-link').value.trim();
+  if(!tt)return;
+  const eid=embedId(lr);
+  const l=eid?'https://www.youtube.com/embed/'+eid:lr;
+  mods[mi].caps[ci].vids[vi].t=tt;
+  mods[mi].caps[ci].vids[vi].l=l;
+  const vidId=mods[mi].caps[ci].vids[vi].id;
+  if(vidId)dbAtualizarVideo(vidId,tt,l);
+  renderModsAdm();fecharMo();t('✅ Vídeo atualizado!');
+}
+
+function remVidCap(mi,ci,vi){
+  if(confirm('Remover vídeo "'+mods[mi].caps[ci].vids[vi].t+'"?')){
+    const vidId=mods[mi].caps[ci].vids[vi].id;
+    if(vidId)dbRemoverVideo(vidId);
+    mods[mi].caps[ci].vids.splice(vi,1);
+    renderModsAdm();t('Vídeo removido.');
+  }
+}
+
 function addMod(){
   const nm=document.getElementById('nm-mod').value.trim();
   const cor=document.getElementById('nm-cor').value;
