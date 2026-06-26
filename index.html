@@ -2314,31 +2314,26 @@ sbClient.auth.onAuthStateChange(function(event, session){
   if(!session||!session.user) return;
 
   const user=session.user;
-  const hash=window.location.hash;
-  
-  // Detect invite: check URL hash OR user metadata indicates invited status
-  const isInviteUrl=hash.includes('type=invite')||hash.includes('type=magiclink');
-  
-  // Check if user has a confirmed_at that equals created_at (first time ever)
-  // and no password set (invited users have no password until they set one)
-  const createdAt=new Date(user.created_at).getTime();
+
+  // Detect invite using invited_at field
+  // If invited_at exists AND confirmed_at is very close to last_sign_in_at = first access via invite
+  const invitedAt=user.invited_at?new Date(user.invited_at).getTime():0;
   const confirmedAt=user.confirmed_at?new Date(user.confirmed_at).getTime():0;
   const lastSignIn=user.last_sign_in_at?new Date(user.last_sign_in_at).getTime():0;
   
-  // If confirmed very recently (within 10 seconds of now) = just clicked invite link
-  const now=Date.now();
-  const justConfirmed=confirmedAt>0&&(now-confirmedAt)<30000;
+  // First access: has invited_at AND confirmed_at equals last_sign_in_at (within 5 seconds)
+  const isFirstAccess=invitedAt>0&&confirmedAt>0&&Math.abs(confirmedAt-lastSignIn)<5000;
   
-  console.log('isInviteUrl:', isInviteUrl, 'justConfirmed:', justConfirmed, 'event:', event);
+  console.log('invitedAt:', user.invited_at, 'isFirstAccess:', isFirstAccess);
 
-  if(isInviteUrl||justConfirmed){
-    console.log('Showing password creation screen');
+  if(isFirstAccess){
+    console.log('First invite access - showing password creation screen');
     document.getElementById('tela-criar-senha').style.display='flex';
     return;
   }
 
   // Normal login
-  if(event==='SIGNED_IN'||event==='INITIAL_SESSION'||event==='TOKEN_REFRESHED'){
+  if(event==='SIGNED_IN'||event==='INITIAL_SESSION'){
     const email=user.email;
     const nome=user.user_metadata&&user.user_metadata.nome
       ?user.user_metadata.nome
