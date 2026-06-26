@@ -119,8 +119,8 @@ body{font-family:'Inter',sans-serif;background:var(--cinza);color:var(--txt)}
 .kit-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.1)}
 .kit-img{height:180px;background:var(--cinza);position:relative;overflow:hidden}
 .kit-carousel{display:flex;height:100%;transition:transform .35s ease;will-change:transform}
-.kit-carousel-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--cinza)}
-.kit-carousel-slide img{width:100%;height:100%;object-fit:contain;padding:8px}
+.kit-carousel-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f8f9fa}
+.kit-carousel-slide img{width:100%;height:100%;object-fit:contain;padding:12px}
 .kit-img-placeholder{font-size:40px}
 .kit-nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.35);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;z-index:2;transition:background .15s}
 .kit-nav:hover{background:rgba(0,0,0,.6)}
@@ -1654,7 +1654,7 @@ function abrirMod(mi){
     const slides=m.fotos.map(f=>`<div class="kit-carousel-slide"><img src="${f}" alt="${m.nm}" style="object-fit:contain;padding:8px;background:#fff"></div>`).join('');
     const dots=m.fotos.map((_,i)=>`<div class="kit-dot${i===0?' at':''}" onclick="carouselNavMod(${i})"></div>`).join('');
     const navs=m.fotos.length>1?`<button class="kit-nav prev" onclick="carouselNavMod(-1,true)">&#8249;</button><button class="kit-nav next" onclick="carouselNavMod(1,true)">&#8250;</button>`:'';
-    fotoArea.innerHTML=`<div class="secao"><div class="stit">Fotos do produto</div><div style="background:#fff;border:1px solid var(--borda);border-radius:12px;overflow:hidden;height:220px;position:relative"><div id="mod-car" data-cur="0">${navs}<div class="kit-carousel" id="mod-car-inner">${slides}</div><div class="kit-dots">${dots}</div></div></div></div>`;
+    fotoArea.innerHTML=`<div class="secao"><div class="stit">Fotos do produto</div><div style="background:#f8f9fa;border:1px solid var(--borda);border-radius:12px;overflow:hidden;position:relative;aspect-ratio:4/3"><div id="mod-car" data-cur="0" style="height:100%">${navs}<div class="kit-carousel" id="mod-car-inner" style="height:100%">${slides}</div><div class="kit-dots">${dots}</div></div></div></div>`;
   }else{fotoArea.innerHTML='';}
 
   // pdf
