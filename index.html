@@ -2310,29 +2310,38 @@ function criarSenha(){
 
 // Handle auth state - detect invite vs normal login
 sbClient.auth.onAuthStateChange(function(event, session){
-  console.log('Auth event:', event, session);
+  console.log('Auth event:', event, session?session.user:null);
   if(!session||!session.user) return;
 
-  // Detect invite flow - user arrived via invite link
+  const user=session.user;
   const hash=window.location.hash;
-  const isInviteUrl=hash.includes('type=invite');
   
-  // Check if user has never set a password (invited but not confirmed)
-  const confirmedAt=session.user.confirmed_at||session.user.email_confirmed_at;
-  const lastSignIn=session.user.last_sign_in_at;
-  const isNewInvite=isInviteUrl||(event==='SIGNED_IN'&&!lastSignIn);
+  // Detect invite: check URL hash OR user metadata indicates invited status
+  const isInviteUrl=hash.includes('type=invite')||hash.includes('type=magiclink');
+  
+  // Check if user has a confirmed_at that equals created_at (first time ever)
+  // and no password set (invited users have no password until they set one)
+  const createdAt=new Date(user.created_at).getTime();
+  const confirmedAt=user.confirmed_at?new Date(user.confirmed_at).getTime():0;
+  const lastSignIn=user.last_sign_in_at?new Date(user.last_sign_in_at).getTime():0;
+  
+  // If confirmed very recently (within 10 seconds of now) = just clicked invite link
+  const now=Date.now();
+  const justConfirmed=confirmedAt>0&&(now-confirmedAt)<30000;
+  
+  console.log('isInviteUrl:', isInviteUrl, 'justConfirmed:', justConfirmed, 'event:', event);
 
-  if(isNewInvite){
-    console.log('Invite detected - showing password creation screen');
+  if(isInviteUrl||justConfirmed){
+    console.log('Showing password creation screen');
     document.getElementById('tela-criar-senha').style.display='flex';
     return;
   }
 
-  // Normal login - go to portal
-  if(event==='SIGNED_IN'||event==='INITIAL_SESSION'){
-    const email=session.user.email;
-    const nome=session.user.user_metadata&&session.user.user_metadata.nome
-      ?session.user.user_metadata.nome
+  // Normal login
+  if(event==='SIGNED_IN'||event==='INITIAL_SESSION'||event==='TOKEN_REFRESHED'){
+    const email=user.email;
+    const nome=user.user_metadata&&user.user_metadata.nome
+      ?user.user_metadata.nome
       :email.split('@')[0];
     aplicarUsuarioLogado(email,nome);
   }
