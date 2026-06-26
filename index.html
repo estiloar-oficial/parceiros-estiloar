@@ -1748,7 +1748,7 @@ function renderMods(){
     g.innerHTML+=`<div class="mod-card" onclick="abrirMod(${i})">
       <div class="mod-thumb ${m.cor}">
         <div class="pBtn"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div>
-        <span class="mq">${m.vids.length} vídeos</span>
+        <span class="mq">${((m.caps||[]).reduce(function(s,c){return s+(c.vids||[]).length;},0)||(m.vids||[]).length)} vídeos</span>
       </div>
       <div class="mod-info">
         <h3>${m.nm}</h3>
@@ -1830,18 +1830,23 @@ function carouselNavMod(dir,isRel){
 
 function playVidCap(mi,ci,vi){
   const m=mods[mi];const cap=m.caps[ci];const v=cap.vids[vi];
+  const id=embedId(v.l);
+  // Play in main player
+  const c=document.getElementById('pl-cont');
+  if(c){
+    c.innerHTML=id
+      ?'<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>'
+      :'<div class="pv-ph"><div class="pbig"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div><div class="phint">Link não configurado</div></div>';
+  }
+  // Update title
+  const titEl=document.getElementById('pl-tit');
+  if(titEl)titEl.textContent=v.t;
+  const subEl=document.getElementById('pl-sub');
+  if(subEl)subEl.textContent=cap.nm+' · Vídeo '+(vi+1)+' de '+cap.vids.length;
   // Highlight selected
   document.querySelectorAll('.vli').forEach(function(el){el.classList.remove('at');});
   const el=document.getElementById('vli-'+ci+'-'+vi);
   if(el)el.classList.add('at');
-  // Update title
-  const titEl=document.getElementById('pl-vid-nm');
-  if(titEl)titEl.textContent=v.t;
-  const subEl=document.getElementById('pl-vid-sub');
-  if(subEl)subEl.textContent=cap.nm+' · Vídeo '+(vi+1)+' de '+cap.vids.length;
-  // Play video
-  const iframe=document.getElementById('pl-iframe');
-  if(iframe&&v.l)iframe.src=v.l+'?autoplay=0&rel=0';
 }
 
 function playVid(mi,vi){
