@@ -1808,13 +1808,20 @@ function toggleStatus(btn){
   const tr=btn.closest('tr');
   const status=tr.dataset.status;
   const badgeEl=tr.querySelector('.badge');
-  const dotEl=tr.querySelector('.bdot');
+  const dbId=tr.dataset.dbid;
+  // Get email from the .me element in the row
+  const meEl=tr.querySelector('.me');
+  const email=meEl?meEl.textContent.trim():'';
+  console.log('toggleStatus - email:', email, 'status:', status);
+
   if(status==='inativo'){
     tr.dataset.status='ativo';
     badgeEl.className='badge ba';
     badgeEl.innerHTML='<span class="bdot"></span>Ativo';
     btn.classList.remove('inativo');btn.classList.add('ativo');
     btn.title='Desativar acesso';
+    if(dbId)dbToggleMembroStatus(dbId,'ativo');
+    if(email)toggleAcessoParceiro(email,'ativar');
     t('✅ Acesso reativado!');
   }else{
     tr.dataset.status='inativo';
@@ -1822,9 +1829,27 @@ function toggleStatus(btn){
     badgeEl.innerHTML='<span class="bdot"></span>Inativo';
     btn.classList.remove('ativo');btn.classList.add('inativo');
     btn.title='Reativar acesso';
+    if(dbId)dbToggleMembroStatus(dbId,'inativo');
+    if(email)toggleAcessoParceiro(email,'desativar');
     t('Acesso desativado.');
   }
   atualizarCtd();
+}
+
+async function toggleAcessoParceiro(email, acao){
+  console.log('Chamando toggle-acesso para:', email, acao);
+  const r=await fetch(SUPABASE_URL+'/functions/v1/toggle-acesso',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer '+SUPABASE_KEY
+    },
+    body:JSON.stringify({email:email,acao:acao})
+  });
+  const data=await r.json();
+  console.log('toggle-acesso resultado:', data);
+  if(!r.ok)console.error('Erro ao '+acao+' acesso:',data);
+  return data;
 }
 
 function carregarMembrosDB(){
