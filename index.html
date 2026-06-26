@@ -1464,6 +1464,9 @@ let servicos=[
   {cod:'3110',nm:'Troca do Led',vl:'R$ 30,00'}
 ];
 let garantiaUrl='';
+let docsDownload=[];
+let docFileBase64='';
+let docFileType='';
 let kvItens=[
   {nm:'Banner', desc:'1 unidade · 70×100cm', foto:''}
 ];
@@ -2650,8 +2653,6 @@ function salvarEditServico(){
 }
 
 // ── DOCUMENTOS PARA DOWNLOAD ────────────────────────────────────────────────
-let docFileBase64='';
-let docFileType='';
 
 function previewDocFile(input){
   const f=input.files[0];if(!f)return;
