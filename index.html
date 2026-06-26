@@ -2311,12 +2311,45 @@ function criarSenha(){
 // Check if arriving from invite/reset link
 window.addEventListener('load', function(){
   const hash=window.location.hash;
-  if(hash&&(hash.includes('type=invite')||hash.includes('type=recovery'))){
+  const params=new URLSearchParams(hash.replace('#',''));
+  const type=params.get('type');
+  const accessToken=params.get('access_token');
+  
+  if(type==='invite'||type==='recovery'||(accessToken&&hash.includes('type=invite'))){
+    // Show password creation screen - don't auto login
     sbClient.auth.getSession().then(function(result){
       if(result.data.session){
         document.getElementById('tela-criar-senha').style.display='flex';
       }
     });
+    return; // Stop here - don't proceed to auto-login
+  }
+  
+  // Normal auto-login for returning users
+  sbClient.auth.getSession().then(function(result){
+    const session=result.data.session;
+    if(session&&session.user){
+      // Check if this is a fresh invite session (user has no password set yet)
+      const isInvite=session.user.app_metadata&&session.user.app_metadata.provider==='email'&&!session.user.last_sign_in_at;
+      if(isInvite){
+        document.getElementById('tela-criar-senha').style.display='flex';
+        return;
+      }
+      const email=session.user.email;
+      const nome=session.user.user_metadata&&session.user.user_metadata.nome?session.user.user_metadata.nome:email.split('@')[0];
+      aplicarUsuarioLogado(email,nome);
+    }
+  });
+});
+
+// Listen for auth state changes to catch invite flow
+sbClient.auth.onAuthStateChange(function(event, session){
+  if(event==='USER_UPDATED'||event==='SIGNED_IN'){
+    const hash=window.location.hash;
+    if(hash.includes('type=invite')){
+      document.getElementById('tela-criar-senha').style.display='flex';
+      return;
+    }
   }
 });
 
