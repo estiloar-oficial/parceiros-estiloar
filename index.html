@@ -1657,6 +1657,7 @@ function irAdmin(){
   recalcularTodos();
   renderModsAdm();renderLinhasAdm();renderKitsPecaAdm();renderServicosAdm();renderKvAdm();
   preencherCamposVideos();
+  preencherCamposTextos();
   carregarMembrosDB();
 }
 
@@ -1677,7 +1678,7 @@ function abaAdm(id,el){
   document.querySelectorAll('#tela-admin .nl').forEach(l=>l.classList.remove('at'));
   if(el)el.classList.add('at');
   if(id==='pecas-adm')renderKitsPecaAdm();
-  if(id==='textos'){renderKvAdm();}
+  if(id==='textos'){renderKvAdm();preencherCamposTextos();}
   if(id==='servicos-adm'){renderServicosAdm();renderDocsAdm();}
 }
 
@@ -2883,6 +2884,40 @@ function uploadGarantia(input){
 
 let vpThumbs={};
 let vpThumbFiles={};
+
+function preencherCamposTextos(){
+  dbCarregarConfigs().then(function(configs){
+    // Map: supabase key -> admin input id
+    const mapa={
+      'txt-sobre-titulo':'ed-sobre-titulo',
+      'txt-sobre-corpo':'ed-sobre-corpo',
+      'txt-sobre-sub':'ed-sobre-sub',
+      'txt-sobre-desc':'ed-sobre-desc',
+      'txt-kv-titulo':'ed-kv-titulo',
+      'txt-kv-sub':'ed-kv-sub',
+      'txt-gar-titulo':'ed-gar-titulo',
+      'txt-gar-corpo':'ed-gar-corpo',
+      'txt-curso-titulo':'ed-curso-titulo',
+      'txt-curso-desc':'ed-curso-desc',
+      'txt-tel':'ed-tel',
+      'txt-email':'ed-email',
+      'hsub':'ed-hero-sub',
+      'gar-badge':'ed-gar-badge',
+      'curso-whatsapp':'ed-curso-whatsapp'
+    };
+    Object.keys(mapa).forEach(function(key){
+      if(configs[key]){
+        const el=document.getElementById(mapa[key]);
+        if(el)el.value=configs[key];
+      }
+    });
+    // Lista de benefícios
+    if(configs['lista-beneficios']){
+      const el=document.getElementById('ed-beneficios-lista');
+      if(el)el.value=configs['lista-beneficios'];
+    }
+  });
+}
 
 function preencherCamposVideos(){
   // Preenche os campos com os dados já salvos no Supabase
