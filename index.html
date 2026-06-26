@@ -2507,11 +2507,7 @@ function addPeca(){
   }
   renderKitsPecaAdm();fecharMo();t('✅ Peça "'+nm+'" adicionada!');
 }
-function remPeca(ki,pi){
-  if(confirm('Remover a peça "'+kitsPeca[ki].pecas[pi].nm+'"?')){
-    kitsPeca[ki].pecas.splice(pi,1);calcTotaisKit(ki);renderKitsPecaAdm();t('Peça removida.');
-  }
-}
+
 function editarPeca(ki,pi){
   const p=kitsPeca[ki].pecas[pi];
   document.getElementById('ep-ki').value=ki;
