@@ -2086,7 +2086,15 @@ function addPeca(){
   calcTotaisKit(kitPecaAtual);
   renderKitsPecaAdm();fecharMo();t('✅ Peça "'+nm+'" adicionada!');
 }
-function remPeca(ki,pi){if(confirm('Remover peça "'+kitsPeca[ki].pecas[pi].nm+'"?')){kitsPeca[ki].pecas.splice(pi,1);renderKitsPecaAdm();t('Peça removida.')}}
+function remPeca(ki,pi){
+  if(confirm('Remover peça "'+kitsPeca[ki].pecas[pi].nm+'"?')){
+    const pecaId=kitsPeca[ki].pecas[pi].id;
+    kitsPeca[ki].pecas.splice(pi,1);
+    calcTotaisKit(ki);
+    if(pecaId)dbRemoverPecaDB(pecaId);
+    renderKitsPecaAdm();t('Peça removida.');
+  }
+}
 
 // EDITAR KIT
 let ekFotosNovas=[];
@@ -2168,8 +2176,12 @@ function salvarEditPeca(){
   const vl=document.getElementById('ep-vl').value.trim();
   const vk=document.getElementById('ep-vk').value.trim();
   if(!nm)return;
-  kitsPeca[ki].pecas[pi]={cod,nm,qt,vl:'R$ '+vl,vk:'R$ '+vk};
+  const pecaId=kitsPeca[ki].pecas[pi].id;
+  kitsPeca[ki].pecas[pi]={...kitsPeca[ki].pecas[pi],cod,nm,qt,vl:'R$ '+vl,vk:'R$ '+vk};
   calcTotaisKit(ki);
+  if(pecaId)dbSalvarPeca(kitsPeca[ki].id,kitsPeca[ki].pecas[pi]);
+  // Update kit totals
+  if(kitsPeca[ki].id)sbFetch('kits_peca?id=eq.'+kitsPeca[ki].id,'PATCH',{preco_de:kitsPeca[ki].de,preco_por:kitsPeca[ki].por});
   renderKitsPecaAdm();fecharMo();t('✅ Peça atualizada!');
 }
 
@@ -2468,7 +2480,18 @@ function addPeca(){
   const vl=document.getElementById('np-vl').value.trim();
   const vk=document.getElementById('np-vk').value.trim();
   if(!nm)return;
-  kitsPeca[kitPecaAtual].pecas.push({cod,nm,qt,vl:'R$ '+vl,vk:'R$ '+vk});
+  const novaPeca={cod,nm,qt,vl:'R$ '+vl,vk:'R$ '+vk};
+  kitsPeca[kitPecaAtual].pecas.push(novaPeca);
+  calcTotaisKit(kitPecaAtual);
+  // Save to DB
+  const kitId=kitsPeca[kitPecaAtual].id;
+  if(kitId){
+    dbSalvarPeca(kitId,novaPeca).then(function(r){
+      if(r&&r[0]&&r[0].id)novaPeca.id=r[0].id;
+      // Update kit totals in DB
+      sbFetch('kits_peca?id=eq.'+kitId,'PATCH',{preco_de:kitsPeca[kitPecaAtual].de,preco_por:kitsPeca[kitPecaAtual].por});
+    });
+  }
   renderKitsPecaAdm();fecharMo();t('✅ Peça "'+nm+'" adicionada!');
 }
 function remPeca(ki,pi){
@@ -2560,7 +2583,9 @@ function addServico(){
   if(!nm||!vl)return;
   const newSvc={cod,nm,vl:'R$ '+vl};
   servicos.push(newSvc);
-  dbSalvarServico(newSvc);
+  dbSalvarServico(newSvc).then(function(r){
+    if(r&&r[0]&&r[0].id)newSvc.id=r[0].id;
+  });
   renderServicosAdm();fecharMo();t('✅ Serviço adicionado!');
   ['ns-nm','ns-vl','ns-cod'].forEach(id=>document.getElementById(id).value='');
 }
