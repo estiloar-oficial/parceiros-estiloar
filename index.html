@@ -1718,12 +1718,26 @@ function irAdmin(){
 
 
 
+// Store section video state
+const vpState={};
+
 function aba(id,el){
-  // Destroy ALL iframes to force stop all videos
+  // Save current iframe srcs before destroying
+  ['sobre','beneficios','pecas','servicos'].forEach(function(sec){
+    const cont=document.getElementById('vp-cont-'+sec);
+    if(cont){
+      const iframe=cont.querySelector('iframe');
+      if(iframe&&iframe.src)vpState[sec]=iframe.src;
+    }
+  });
+  const cc=document.getElementById('curso-player-cont');
+  if(cc){const iframe=cc.querySelector('iframe');if(iframe&&iframe.src)vpState['curso']=iframe.src;}
+
+  // Destroy ALL iframes to stop all videos
   document.querySelectorAll('#tela-portal iframe').forEach(function(f){
     f.parentNode.removeChild(f);
   });
-  // Also clear the module player
+  // Clear module player
   const pc=document.getElementById('pl-cont');
   if(pc)pc.innerHTML='<div class="pv-ph"><div class="pbig"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div><div class="phint">Selecione um vídeo</div></div>';
 
@@ -1736,6 +1750,30 @@ function aba(id,el){
   if(id==='servicos')renderServicos();
   if(id==='beneficios')renderKvView();
   if(id==='treinamentos')renderMods();
+
+  // Restore video for the tab being opened (without autoplay)
+  if(['sobre','beneficios','pecas','servicos'].includes(id)&&vpState[id]){
+    const cont=document.getElementById('vp-cont-'+id);
+    if(cont){
+      const iframe=document.createElement('iframe');
+      iframe.src=vpState[id].replace('autoplay=1','autoplay=0');
+      iframe.allow='accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+      iframe.allowFullscreen=true;
+      iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none';
+      cont.appendChild(iframe);
+    }
+  }
+  if(id==='curso'&&vpState['curso']){
+    const cont=document.getElementById('curso-player-cont');
+    if(cont){
+      const iframe=document.createElement('iframe');
+      iframe.src=vpState['curso'].replace('autoplay=1','autoplay=0');
+      iframe.allow='accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+      iframe.allowFullscreen=true;
+      iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none';
+      cont.appendChild(iframe);
+    }
+  }
 }
 
 function abaAdm(id,el){
