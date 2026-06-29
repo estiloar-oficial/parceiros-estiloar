@@ -1853,7 +1853,7 @@ function playVidCap(mi,ci,vi){
     c.innerHTML=''; // Clear stops the video
     setTimeout(function(){
       c.innerHTML=id
-        ?'<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>'
+        ?'<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=0&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>'
         :'<div class="pv-ph"><div class="pbig"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div><div class="phint">Link não configurado</div></div>';
     }, 50);
   }
@@ -1873,7 +1873,7 @@ function playVid(mi,vi){
   const c=document.getElementById('pl-cont');
   c.innerHTML='';
   if(!c)return;
-  setTimeout(function(){c.innerHTML=id?`<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>`:`<div class="pv-ph"><div class="pbig"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div><div class="phint">Link não configurado</div></div>`;
+  setTimeout(function(){c.innerHTML=id?`<iframe src="https://www.youtube.com/embed/${id}?autoplay=0&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>`:`<div class="pv-ph"><div class="pbig"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div><div class="phint">Link não configurado</div></div>`;
   document.getElementById('pl-tit').textContent=v.t;
   document.getElementById('pl-sub').textContent=mods[mi].nm+' · Aula '+(vi+1)+' de '+mods[mi].vids.length;
   document.querySelectorAll('.vli').forEach((el,i)=>{el.classList.toggle('at',i===vi)});
@@ -3217,7 +3217,7 @@ function playVideoSecao(secao, videoId, el){
   const contId=secao==='curso'?'curso-player-cont':'vp-cont-'+secao;
   const cont=document.getElementById(contId);
   if(!cont)return;
-  cont.innerHTML='<iframe src="https://www.youtube.com/embed/'+videoId+'?autoplay=1&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>';
+  cont.innerHTML='<iframe src="https://www.youtube.com/embed/'+videoId+'?autoplay=0&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>';
 }
 
 function uploadThumbSecao(secao, input){
