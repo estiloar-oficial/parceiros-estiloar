@@ -1764,10 +1764,16 @@ function abrirMod(mi){
 
   // ACCORDION: if same module clicked, toggle close
   if(modAtual===mi && area.style.display==='block'){
+    // Stop video before closing
+    const c=document.getElementById('pl-cont');
+    if(c)c.innerHTML='';
     area.style.display='none';
     modAtual=null;
     return;
   }
+  // Stop any playing video before switching module
+  const c=document.getElementById('pl-cont');
+  if(c)c.innerHTML='';
 
   modAtual=mi;const m=mods[mi];
   area.style.display='block';
@@ -1831,12 +1837,15 @@ function carouselNavMod(dir,isRel){
 function playVidCap(mi,ci,vi){
   const m=mods[mi];const cap=m.caps[ci];const v=cap.vids[vi];
   const id=embedId(v.l);
-  // Play in main player
+  // Clear player first to stop any playing video
   const c=document.getElementById('pl-cont');
   if(c){
-    c.innerHTML=id
-      ?'<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>'
-      :'<div class="pv-ph"><div class="pbig"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div><div class="phint">Link não configurado</div></div>';
+    c.innerHTML=''; // Clear stops the video
+    setTimeout(function(){
+      c.innerHTML=id
+        ?'<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>'
+        :'<div class="pv-ph"><div class="pbig"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div><div class="phint">Link não configurado</div></div>';
+    }, 50);
   }
   // Update title
   const titEl=document.getElementById('pl-tit');
@@ -1852,11 +1861,14 @@ function playVidCap(mi,ci,vi){
 function playVid(mi,vi){
   const v=mods[mi].vids[vi];const id=embedId(v.l);
   const c=document.getElementById('pl-cont');
-  c.innerHTML=id?`<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>`:`<div class="pv-ph"><div class="pbig"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div><div class="phint">Link não configurado</div></div>`;
+  c.innerHTML='';
+  if(!c)return;
+  setTimeout(function(){c.innerHTML=id?`<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>`:`<div class="pv-ph"><div class="pbig"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div><div class="phint">Link não configurado</div></div>`;
   document.getElementById('pl-tit').textContent=v.t;
   document.getElementById('pl-sub').textContent=mods[mi].nm+' · Aula '+(vi+1)+' de '+mods[mi].vids.length;
   document.querySelectorAll('.vli').forEach((el,i)=>{el.classList.toggle('at',i===vi)});
   document.querySelectorAll('[id^="vn-"]').forEach((el,i)=>{el.classList.toggle('at',i===vi)});
+  },50);
 }
 
 function carouselNav(cardId,dir){
