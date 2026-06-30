@@ -701,7 +701,7 @@ Como Parceiro Autorizado, sua empresa passa a fazer parte de um ecossistema que 
           <div class="flt"><select onchange="filtStatus(this.value)"><option value="">Todos</option><option value="ativo">Ativo</option><option value="pendente">Pendente</option><option value="inativo">Inativo</option></select></div>
         </div>
         <table class="tb">
-          <thead><tr><th style="width:32%">Membro</th><th style="width:22%">Empresa</th><th style="width:14%">Status</th><th style="width:16%">Desde</th><th>Ações</th></tr></thead>
+          <thead><tr><th style="width:28%">Membro</th><th style="width:18%">Empresa</th><th style="width:16%">Cidade/UF</th><th style="width:12%">Status</th><th style="width:14%">Desde</th><th>Ações</th></tr></thead>
           <tbody id="tb-membros"></tbody>
         </table>
         <div class="pag"><span class="pi" id="pag-inf">Mostrando 1–5 de 5</span><div class="pbs"><button class="pb-btn">‹</button><button class="pb-btn at">1</button><button class="pb-btn">›</button></div></div>
@@ -992,10 +992,14 @@ Participação em treinamentos, lives técnicas e atualizações constantes.</te
 
 <!-- MODAIS -->
 <div class="mo" id="mo-membro"><div class="modal">
-  <h3>Adicionar membro</h3><p class="modal-sub">O parceiro receberá convite por email.</p>
+  <h3>Adicionar membro</h3><p class="modal-sub">O parceiro receberá convite por email. Os dados de localização alimentam o mapa de assistência técnica.</p>
   <div class="campo"><label>Nome</label><input id="nm-nome" placeholder="Ex: João Silva"></div>
   <div class="campo"><label>E-mail</label><input type="email" id="nm-email" placeholder="email@empresa.com.br"></div>
   <div class="campo"><label>Empresa</label><input id="nm-emp" placeholder="Nome da empresa"></div>
+  <div class="campo"><label>Cidade</label><input id="nm-cidade" placeholder="Ex: São Paulo"></div>
+  <div class="campo"><label>UF (estado)</label><select id="nm-uf"><option value="">Selecione...</option><option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option></select></div>
+  <div class="campo"><label>Endereço</label><input id="nm-endereco" placeholder="Ex: Rua das Flores, Nº 123, Bairro Centro"></div>
+  <div class="campo"><label>Telefone</label><input id="nm-tel" placeholder="Ex: (11) 9 9999-9999"></div>
   <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn" onclick="addMembro()">Adicionar</button></div>
 </div></div>
 
@@ -1284,9 +1288,14 @@ async function dbCarregarConfigs(){
   if(data)data.forEach(c=>obj[c.chave]=c.valor);
   return obj;
 }
-async function dbAdicionarMembro(nome,email,empresa){
-  const r=await sbFetch('membros','POST',{nome,email,empresa,status:'ativo'});
+async function dbAdicionarMembro(nome,email,empresa,cidade,uf,endereco,tel){
+  const r=await sbFetch('membros','POST',{nome,email,empresa,cidade,uf,endereco,tel,status:'ativo'});
   console.log('dbAdicionarMembro result:',r);
+  return r;
+}
+async function dbAdicionarAssistencia(nome,cidade,uf,endereco,tel){
+  const r=await sbFetch('assistencias','POST',{nome:(nome||'').toUpperCase(),cidade,uf,endereco,tel,ativa:true});
+  console.log('dbAdicionarAssistencia result:',r);
   return r;
 }
 async function dbRemoverMembroDB(id){
@@ -1395,6 +1404,11 @@ async function dbCarregarMembros(){
 }
 async function dbToggleMembroStatus(id,status){
   return sbFetch('membros?id=eq.'+id,'PATCH',{status:status});
+}
+async function dbSincronizarAssistenciaAtiva(nomeEmpresa,ativa){
+  if(!nomeEmpresa)return;
+  const nome=nomeEmpresa.toUpperCase();
+  return sbFetch('assistencias?nome=eq.'+encodeURIComponent(nome),'PATCH',{ativa:ativa});
 }
 async function dbRemoverMembroDB(id){
   return sbFetch('membros?id=eq.'+id,'DELETE');
@@ -2024,18 +2038,26 @@ function addMembro(){
   const n=document.getElementById('nm-nome').value.trim();
   const e=document.getElementById('nm-email').value.trim();
   const emp=document.getElementById('nm-emp').value.trim();
-  if(!n||!e)return;
+  const cidade=document.getElementById('nm-cidade').value.trim();
+  const uf=document.getElementById('nm-uf').value.trim();
+  const endereco=document.getElementById('nm-endereco').value.trim();
+  const tel=document.getElementById('nm-tel').value.trim();
+  if(!n||!e){t('❌ Preencha Nome e E-mail.');return;}
+  if(!cidade||!uf||!endereco||!tel){t('❌ Cidade, UF, Endereço e Telefone são obrigatórios.');return;}
   const ini=n.split(' ').slice(0,2).map(x=>x[0]).join('').toUpperCase();
   const c=avCs[avIdx++%avCs.length];
   const tr=document.createElement('tr');tr.dataset.status='ativo';
-  tr.innerHTML='<td><div class="mc"><div class="av '+c+'">'+ini+'</div><div><div class="mn">'+n+'</div><div class="me">'+e+'</div></div></div></td><td>'+(emp||'—')+'</td><td><span class="badge ba"><span class="bdot"></span>Ativo</span></td><td>Agora</td><td><div class="acs"><button class="ba-btn tog ativo" onclick="toggleStatus(this)" title="Desativar"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button><button class="ba-btn d" onclick="remMembro(this)" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div></td>';
+  tr.innerHTML='<td><div class="mc"><div class="av '+c+'">'+ini+'</div><div><div class="mn">'+n+'</div><div class="me">'+e+'</div></div></div></td><td>'+(emp||'—')+'</td><td>'+(cidade||'—')+(uf?' — '+uf:'')+'</td><td><span class="badge ba"><span class="bdot"></span>Ativo</span></td><td>Agora</td><td><div class="acs"><button class="ba-btn tog ativo" onclick="toggleStatus(this)" title="Desativar"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button><button class="ba-btn d" onclick="remMembro(this)" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div></td>';
   document.getElementById('tb-membros').prepend(tr);
   atualizarCtd();fecharMo();
-  ['nm-nome','nm-email','nm-emp'].forEach(id=>document.getElementById(id).value='');
+  ['nm-nome','nm-email','nm-emp','nm-cidade','nm-endereco','nm-tel'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nm-uf').value='';
   // Save to DB and send invite
-  dbAdicionarMembro(n,e,emp).then(function(r){
+  dbAdicionarMembro(n,e,emp,cidade,uf,endereco,tel).then(function(r){
     if(r&&r[0]&&r[0].id)tr.dataset.dbid=r[0].id;
   });
+  // Save to assistencias table (feeds the public map)
+  dbAdicionarAssistencia(emp||n,cidade,uf,endereco,tel);
   authConvidarParceiro(e,n).then(function(r){
     if(r&&r.success){
       t('✅ Convite enviado para '+e+'! O parceiro receberá um email para criar a senha.');
@@ -2063,6 +2085,9 @@ function toggleStatus(btn){
   // Get email from the .me element in the row
   const meEl=tr.querySelector('.me');
   const email=meEl?meEl.textContent.trim():'';
+  // Get company name from the .mn element (used as nome in assistencias)
+  const empEl=tr.children[1];
+  const empresa=empEl?empEl.textContent.trim():'';
   console.log('toggleStatus - email:', email, 'status:', status);
 
   if(status==='inativo'){
@@ -2073,6 +2098,7 @@ function toggleStatus(btn){
     btn.title='Desativar acesso';
     if(dbId)dbToggleMembroStatus(dbId,'ativo');
     if(email)toggleAcessoParceiro(email,'ativar');
+    if(empresa&&empresa!=='—')dbSincronizarAssistenciaAtiva(empresa,true);
     t('✅ Acesso reativado!');
   }else{
     tr.dataset.status='inativo';
@@ -2082,6 +2108,7 @@ function toggleStatus(btn){
     btn.title='Reativar acesso';
     if(dbId)dbToggleMembroStatus(dbId,'inativo');
     if(email)toggleAcessoParceiro(email,'desativar');
+    if(empresa&&empresa!=='—')dbSincronizarAssistenciaAtiva(empresa,false);
     t('Acesso desativado.');
   }
   atualizarCtd();
@@ -2121,6 +2148,7 @@ function carregarMembrosDB(){
       tr.dataset.dbid=m.id;
       tr.innerHTML='<td><div class="mc"><div class="av '+cor+'">'+ini+'</div><div><div class="mn">'+m.nome+'</div><div class="me">'+m.email+'</div></div></div></td>'
         +'<td>'+(m.empresa||'—')+'</td>'
+        +'<td>'+(m.cidade||'—')+(m.uf?' — '+m.uf:'')+'</td>'
         +'<td><span class="badge '+badgeClass+'"><span class="bdot"></span>'+badgeLabel+'</span></td>'
         +'<td>'+(m.criado_em?new Date(m.criado_em).toLocaleDateString('pt-BR'):'—')+'</td>'
         +'<td><div class="acs">'
