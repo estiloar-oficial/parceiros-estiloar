@@ -1023,6 +1023,19 @@ Participação em treinamentos, lives técnicas e atualizações constantes.</te
   <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn" onclick="addMembro()">Adicionar</button></div>
 </div></div>
 
+<div class="mo" id="mo-edit-membro"><div class="modal">
+  <h3>Editar membro</h3><p class="modal-sub">O e-mail não pode ser alterado aqui (está vinculado ao login do parceiro).</p>
+  <input type="hidden" id="em-row-id">
+  <div class="campo"><label>Nome</label><input id="em-nome" placeholder="Ex: João Silva"></div>
+  <div class="campo"><label>E-mail (somente leitura)</label><input id="em-email" disabled style="background:var(--cinza);color:var(--txt2)"></div>
+  <div class="campo"><label>Empresa</label><input id="em-emp" placeholder="Nome da empresa"></div>
+  <div class="campo"><label>Cidade</label><input id="em-cidade" placeholder="Ex: São Paulo"></div>
+  <div class="campo"><label>UF (estado)</label><select id="em-uf"><option value="">Selecione...</option><option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option></select></div>
+  <div class="campo"><label>Endereço</label><input id="em-endereco" placeholder="Ex: Rua das Flores, Nº 123, Bairro Centro"></div>
+  <div class="campo"><label>Telefone</label><input id="em-tel" placeholder="Ex: (11) 9 9999-9999"></div>
+  <div class="modal-acs"><button class="btn-can" onclick="fecharMo()">Cancelar</button><button class="btn" onclick="salvarEditMembro()">Salvar alterações</button></div>
+</div></div>
+
 <div class="mo" id="mo-modulo"><div class="modal">
   <h3>Novo módulo</h3><p class="modal-sub">Crie um novo módulo de treinamento.</p>
   <div class="campo"><label>Nome</label><input id="nm-mod" placeholder="Ex: Manutenção Preventiva"></div>
@@ -1360,9 +1373,6 @@ async function dbAdicionarAssistencia(nome,cidade,uf,endereco,tel){
   console.log('dbAdicionarAssistencia result:',r);
   return r;
 }
-async function dbRemoverMembroDB(id){
-  return sbFetch('membros?id=eq.'+id,'DELETE');
-}
 async function dbCarregarServicos(){
   return sbFetch('servicos?select=*&order=ordem.asc');
 }
@@ -1484,6 +1494,18 @@ async function dbSincronizarAssistenciaAtiva(nomeEmpresa,ativa){
   if(!nomeEmpresa)return;
   const nome=nomeEmpresa.toUpperCase();
   return sbFetch('assistencias?nome=eq.'+encodeURIComponent(nome),'PATCH',{ativa:ativa});
+}
+async function dbRemoverAssistenciaPorNome(nomeEmpresa){
+  if(!nomeEmpresa)return;
+  const nome=nomeEmpresa.toUpperCase();
+  return sbFetch('assistencias?nome=eq.'+encodeURIComponent(nome),'DELETE');
+}
+async function dbAtualizarMembro(id,nome,empresa,cidade,uf,endereco,tel){
+  return sbFetch('membros?id=eq.'+id,'PATCH',{nome,empresa,cidade,uf,endereco,tel});
+}
+async function dbAtualizarAssistenciaPorNomeAntigo(nomeAntigo,dados){
+  if(!nomeAntigo)return;
+  return sbFetch('assistencias?nome=eq.'+encodeURIComponent(nomeAntigo.toUpperCase()),'PATCH',dados);
 }
 async function dbRemoverMembroDB(id){
   return sbFetch('membros?id=eq.'+id,'DELETE');
@@ -1750,10 +1772,26 @@ function embedId(url){
 
 let portalJaInicializado=false;
 let portalInicializando=false;
+let emailInicializado=null;
 function aplicarUsuarioLogado(email, nome){
-  // Evita chamadas concorrentes/duplicadas de inicializarPortal (causava vídeos/dados sumirem por race condition)
+  // Evita chamadas concorrentes/duplicadas de inicializarPortal (causava vídeos/dados sumirem por race condition).
+  // O Supabase pode disparar SIGNED_IN/INITIAL_SESSION várias vezes na mesma sessão (ex: ao focar a aba,
+  // renovar token em background) — só reinicializa de fato se for um login realmente novo (email diferente)
+  // ou se o portal ainda não tiver sido inicializado nesta sessão.
   if(portalInicializando)return;
+  if(portalJaInicializado&&emailInicializado===email){
+    // Já inicializado para este usuário — apenas garante que a tela certa esteja visível, sem refazer fetch.
+    const adm=isAdminEmail(email);
+    document.getElementById('lerro').style.display='none';
+    document.getElementById('tela-login').style.display='none';
+    document.getElementById('social-bar').style.display='flex';
+    if(document.getElementById('tela-portal').style.display==='none'&&document.getElementById('tela-admin').style.display==='none'){
+      if(adm)irAdmin();else irPortal();
+    }
+    return;
+  }
   portalInicializando=true;
+  emailInicializado=email;
   const adm=isAdminEmail(email);
   const nomeExibir=nome||(email.split('@')[0]);
   const pri=nomeExibir.split(' ')[0];
@@ -1796,6 +1834,10 @@ function logout(){
   document.getElementById('si').value='';
   document.getElementById('btn-admin').style.display='none';
   document.getElementById('social-bar').style.display='none';
+  // Reseta as travas de inicialização para que o próximo login (mesmo ou outro usuário) inicialize corretamente
+  portalJaInicializado=false;
+  portalInicializando=false;
+  emailInicializado=null;
 }
 
 // Auto-login se sessão ativa no Supabase
@@ -2084,6 +2126,15 @@ function renderKits(){
 }
 
 
+// Controla quais capítulos estão expandidos no admin (chave "moduloIndex-capituloIndex").
+// Por padrão todos ficam fechados/retraídos — só abre ao clicar no cabeçalho do capítulo.
+let capsAbertos={};
+function toggleCapituloAdm(mi,ci){
+  const k=mi+'-'+ci;
+  capsAbertos[k]=!capsAbertos[k];
+  renderModsAdm();
+}
+
 function renderModsAdm(){
   const l=document.getElementById('lista-mods');l.innerHTML='';
   mods.forEach(function(m,mi){
@@ -2093,7 +2144,14 @@ function renderModsAdm(){
       const vidsHTML=cap.vids.map(function(v,vi){
         return '<div class="vrow"><div class="vnum">'+(vi+1)+'</div><div class="vi"><div class="vt2">'+v.t+'</div><div class="vl2">'+(v.l||'Link não configurado')+'</div></div><div class="acs"><button class="ba-btn" onclick="editarVidCap('+mi+','+ci+','+vi+')" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ba-btn d" onclick="remVidCap('+mi+','+ci+','+vi+')" title="Remover"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div></div>';
       }).join('');
-      return '<div style="background:var(--cinza);border-radius:8px;margin-bottom:10px;overflow:hidden"><div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(21,101,192,.08)"><span style="font-size:13px;font-weight:600;color:var(--azul)">'+(ci+1)+'. '+cap.nm+'</span><div class="acs"><button class="ba-btn" onclick="editarCapitulo('+mi+','+ci+')" title="Editar capítulo"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ba-btn d" onclick="remCapitulo('+mi+','+ci+')" title="Remover capítulo"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div></div><div style="padding:8px 14px">'+(vidsHTML||'<span style="font-size:12px;color:var(--txt2)">Nenhum vídeo neste capítulo</span>')+'<button class="add-v" onclick="abrirAddVidCap('+mi+','+ci+')">+ Adicionar vídeo</button></div></div>';
+      const capAberto=capsAbertos[mi+'-'+ci]===true; // fechado por padrão
+      return '<div style="background:var(--cinza);border-radius:8px;margin-bottom:10px;overflow:hidden">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(21,101,192,.08);cursor:pointer" onclick="toggleCapituloAdm('+mi+','+ci+')">'
+        +'<span style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--azul)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" style="transform:rotate('+(capAberto?'90':'0')+'deg);transition:transform .15s;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>'+(ci+1)+'. '+cap.nm+' <span style="font-weight:400;color:var(--txt2)">('+cap.vids.length+' vídeo'+(cap.vids.length!==1?'s':'')+')</span></span>'
+        +'<div class="acs" onclick="event.stopPropagation()"><button class="ba-btn" onclick="editarCapitulo('+mi+','+ci+')" title="Editar capítulo"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ba-btn d" onclick="remCapitulo('+mi+','+ci+')" title="Remover capítulo"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div>'
+        +'</div>'
+        +(capAberto?'<div style="padding:8px 14px">'+(vidsHTML||'<span style="font-size:12px;color:var(--txt2)">Nenhum vídeo neste capítulo</span>')+'<button class="add-v" onclick="abrirAddVidCap('+mi+','+ci+')">+ Adicionar vídeo</button></div>':'')
+        +'</div>';
     }).join('');
     const vHTML='';// legacy vids not shown in new structure
 
@@ -2161,7 +2219,8 @@ function addMembro(){
   const ini=n.split(' ').slice(0,2).map(x=>x[0]).join('').toUpperCase();
   const c=avCs[avIdx++%avCs.length];
   const tr=document.createElement('tr');tr.dataset.status='ativo';
-  tr.innerHTML='<td><div class="mc"><div class="av '+c+'">'+ini+'</div><div><div class="mn">'+n+'</div><div class="me">'+e+'</div></div></div></td><td>'+(emp||'—')+'</td><td>'+(cidade||'—')+(uf?' — '+uf:'')+'</td><td><span class="badge ba"><span class="bdot"></span>Ativo</span></td><td>Agora</td><td><div class="acs"><button class="ba-btn tog ativo" onclick="toggleStatus(this)" title="Desativar"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button><button class="ba-btn d" onclick="remMembro(this)" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div></td>';
+  tr.dataset.nome=n;tr.dataset.empresa=emp;tr.dataset.cidade=cidade;tr.dataset.uf=uf;tr.dataset.endereco=endereco;tr.dataset.tel=tel;
+  tr.innerHTML='<td><div class="mc"><div class="av '+c+'">'+ini+'</div><div><div class="mn">'+n+'</div><div class="me">'+e+'</div></div></div></td><td>'+(emp||'—')+'</td><td>'+(cidade||'—')+(uf?' — '+uf:'')+'</td><td><span class="badge ba"><span class="bdot"></span>Ativo</span></td><td>Agora</td><td><div class="acs"><button class="ba-btn" onclick="abrirEditarMembro(this)" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="ba-btn tog ativo" onclick="toggleStatus(this)" title="Desativar"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button><button class="ba-btn d" onclick="remMembro(this)" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div></td>';
   document.getElementById('tb-membros').prepend(tr);
   atualizarCtd();fecharMo();
   ['nm-nome','nm-email','nm-emp','nm-cidade','nm-endereco','nm-tel'].forEach(id=>document.getElementById(id).value='');
@@ -2182,12 +2241,97 @@ function addMembro(){
   });
 }
 
+function abrirEditarMembro(btn){
+  const tr=btn.closest('tr');
+  document.getElementById('em-row-id').value=tr.dataset.dbid||'';
+  const meEl=tr.querySelector('.me');
+  document.getElementById('em-nome').value=tr.dataset.nome||'';
+  document.getElementById('em-email').value=meEl?meEl.textContent.trim():'';
+  document.getElementById('em-emp').value=tr.dataset.empresa||'';
+  document.getElementById('em-cidade').value=tr.dataset.cidade||'';
+  document.getElementById('em-uf').value=tr.dataset.uf||'';
+  document.getElementById('em-endereco').value=tr.dataset.endereco||'';
+  document.getElementById('em-tel').value=tr.dataset.tel||'';
+  // Guarda referência da linha e do nome de empresa ANTIGO (para sincronizar/renomear em assistencias)
+  window._editMembroTr=tr;
+  window._editMembroEmpresaAntiga=tr.dataset.empresa||'';
+  abrirMo('mo-edit-membro');
+}
+
+function salvarEditMembro(){
+  const dbId=document.getElementById('em-row-id').value;
+  const nome=document.getElementById('em-nome').value.trim();
+  const emp=document.getElementById('em-emp').value.trim();
+  const cidade=document.getElementById('em-cidade').value.trim();
+  const uf=document.getElementById('em-uf').value.trim();
+  const endereco=document.getElementById('em-endereco').value.trim();
+  const tel=document.getElementById('em-tel').value.trim();
+  if(!nome){t('❌ O nome não pode ficar vazio.');return;}
+  if(!cidade||!uf||!endereco||!tel){t('❌ Cidade, UF, Endereço e Telefone são obrigatórios.');return;}
+
+  const tr=window._editMembroTr;
+  const empresaAntiga=window._editMembroEmpresaAntiga||'';
+
+  // Atualiza a linha visualmente
+  if(tr){
+    tr.dataset.nome=nome;tr.dataset.empresa=emp;tr.dataset.cidade=cidade;tr.dataset.uf=uf;tr.dataset.endereco=endereco;tr.dataset.tel=tel;
+    const mnEl=tr.querySelector('.mn');if(mnEl)mnEl.textContent=nome;
+    const empTd=tr.children[1];if(empTd)empTd.textContent=emp||'—';
+    const cidTd=tr.children[2];if(cidTd)cidTd.textContent=(cidade||'—')+(uf?' — '+uf:'');
+  }
+  fecharMo();
+  t('Salvando alterações...');
+
+  // Atualiza no banco (tabela membros)
+  if(dbId)dbAtualizarMembro(dbId,nome,emp,cidade,uf,endereco,tel);
+
+  // Sincroniza com assistencias: se o nome da empresa mudou, precisa atualizar pelo nome ANTIGO
+  // (já que é a única forma de localizar o registro correspondente, sem id direto vinculado)
+  if(empresaAntiga&&empresaAntiga!=='—'){
+    dbAtualizarAssistenciaPorNomeAntigo(empresaAntiga,{
+      nome:(emp||nome).toUpperCase(),cidade,uf,endereco,tel
+    }).then(function(){
+      t('✅ Membro atualizado!');
+    });
+  }else if(emp){
+    // Não existia registro em assistencias antes (empresa estava vazia) — cria um novo agora
+    dbAdicionarAssistencia(emp,cidade,uf,endereco,tel).then(function(){
+      t('✅ Membro atualizado!');
+    });
+  }else{
+    t('✅ Membro atualizado!');
+  }
+}
+
 function remMembro(btn){
-  if(confirm('Remover este parceiro?')){
-    const tr=btn.closest('tr');
-    const dbId=tr.dataset.dbid;
-    if(dbId)dbRemoverMembroDB(dbId);
-    tr.remove();atualizarCtd();t('Membro removido.');
+  if(!confirm('Remover este parceiro? Isso vai excluir o cadastro, o ponto no mapa de assistência e o acesso de login dele. Essa ação não pode ser desfeita.'))return;
+  const tr=btn.closest('tr');
+  const dbId=tr.dataset.dbid;
+  const meEl=tr.querySelector('.me');
+  const email=meEl?meEl.textContent.trim():'';
+  const empEl=tr.children[1];
+  const empresa=empEl?empEl.textContent.trim():'';
+
+  tr.remove();atualizarCtd();t('Removendo membro...');
+
+  // 1) Remove da tabela membros
+  if(dbId)dbRemoverMembroDB(dbId);
+
+  // 2) Remove o registro correspondente em assistencias (some do mapa público)
+  if(empresa&&empresa!=='—')dbRemoverAssistenciaPorNome(empresa);
+
+  // 3) Remove o acesso de login no Supabase Auth (ele não consegue mais entrar, mesmo com a senha antiga)
+  if(email){
+    toggleAcessoParceiro(email,'excluir').then(function(r){
+      if(r&&r.success){
+        t('✅ Membro removido por completo (cadastro, mapa e acesso).');
+      }else{
+        t('⚠️ Membro removido do cadastro, mas houve um erro ao remover o acesso de login. Verifique o console.');
+        console.error('Erro ao excluir acesso do Auth:',r);
+      }
+    });
+  }else{
+    t('Membro removido.');
   }
 }
 
@@ -2266,9 +2410,16 @@ function carregarMembrosDB(){
         +'<td><span class="badge '+badgeClass+'"><span class="bdot"></span>'+badgeLabel+'</span></td>'
         +'<td>'+(m.criado_em?new Date(m.criado_em).toLocaleDateString('pt-BR'):'—')+'</td>'
         +'<td><div class="acs">'
+        +'<button class="ba-btn" onclick="abrirEditarMembro(this)" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
         +'<button class="ba-btn tog '+togClass+'" onclick="toggleStatus(this)" title="'+(m.status==='inativo'?'Reativar':'Desativar')+'"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button>'
         +'<button class="ba-btn d" onclick="remMembro(this)" title="Excluir"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7A99" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>'
         +'</div></td>';
+      tr.dataset.nome=m.nome;
+      tr.dataset.empresa=m.empresa||'';
+      tr.dataset.cidade=m.cidade||'';
+      tr.dataset.uf=m.uf||'';
+      tr.dataset.endereco=m.endereco||'';
+      tr.dataset.tel=m.tel||'';
       tbody.appendChild(tr);
     });
     atualizarCtd();
