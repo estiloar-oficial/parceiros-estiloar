@@ -1658,7 +1658,12 @@ function embedId(url){
   return null;
 }
 
+let portalJaInicializado=false;
+let portalInicializando=false;
 function aplicarUsuarioLogado(email, nome){
+  // Evita chamadas concorrentes/duplicadas de inicializarPortal (causava vídeos/dados sumirem por race condition)
+  if(portalInicializando)return;
+  portalInicializando=true;
   const adm=isAdminEmail(email);
   const nomeExibir=nome||(email.split('@')[0]);
   const pri=nomeExibir.split(' ')[0];
@@ -1670,6 +1675,8 @@ function aplicarUsuarioLogado(email, nome){
   document.getElementById('btn-admin').style.display=adm?'':'none';
   document.getElementById('social-bar').style.display='flex';
   inicializarPortal().then(function(){
+    portalJaInicializado=true;
+    portalInicializando=false;
     if(adm)irAdmin();else irPortal();
   });
 }
@@ -1702,16 +1709,8 @@ function logout(){
 }
 
 // Auto-login se sessão ativa no Supabase
-window.addEventListener('load', function(){
-  sbClient.auth.getSession().then(function(result){
-    const session=result.data.session;
-    if(session&&session.user){
-      const email=session.user.email;
-      const nome=session.user.user_metadata&&session.user.user_metadata.nome?session.user.user_metadata.nome:email.split('@')[0];
-      aplicarUsuarioLogado(email,nome);
-    }
-  });
-});
+// Auto-login é tratado pelo onAuthStateChange (evento INITIAL_SESSION) — ver mais abaixo no arquivo.
+// (Removido o listener duplicado de 'load' que causava chamadas concorrentes de inicializarPortal())
 
 function irPortal(){
   document.getElementById('tela-portal').style.display='block';
