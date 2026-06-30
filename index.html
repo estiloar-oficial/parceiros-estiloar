@@ -1536,6 +1536,7 @@ async function inicializarPortal(){
     ['sobre','beneficios','pecas','treinamentos','servicos'].forEach(sec=>{
       const url=configs['video_'+sec];
       if(url){
+        configsVideoCache[sec]={url:url,thumb:configs['thumb_'+sec]||''};
         const id=embedId(url);
         const thumb=configs['thumb_'+sec]||'';
         if(id)renderVideoPlayer(sec,id,thumb);
@@ -1545,6 +1546,7 @@ async function inicializarPortal(){
     // Vídeo do curso
     const cursoUrl=configs['video_curso'];
     if(cursoUrl){
+      configsVideoCache['curso']={url:cursoUrl,thumb:configs['thumb_curso']||''};
       const id=embedId(cursoUrl);
       const cont=document.getElementById('curso-player-cont');
       if(id&&cont){
@@ -1821,6 +1823,9 @@ function irAdmin(){
 
 // Store section video state
 const vpState={};
+// Cache dos configs do banco (vídeos) — usado como fallback quando vpState ainda não tem o iframe salvo
+// (ex: primeira vez que o usuário visita a aba após o login, antes de qualquer troca de aba)
+let configsVideoCache={};
 
 function aba(id,el){
   // Save current iframe srcs before destroying
@@ -1854,26 +1859,46 @@ function aba(id,el){
   if(id==='marketing')renderMarketingView();
 
   // Restore video for the tab being opened (without autoplay)
-  if(['sobre','beneficios','pecas','servicos','treinamentos'].includes(id)&&vpState[id]){
+  if(['sobre','beneficios','pecas','servicos','treinamentos'].includes(id)){
     const cont=document.getElementById('vp-cont-'+id);
     if(cont){
-      const iframe=document.createElement('iframe');
-      iframe.src=vpState[id].replace('autoplay=1','autoplay=0');
-      iframe.allow='accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
-      iframe.allowFullscreen=true;
-      iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none';
-      cont.appendChild(iframe);
+      if(vpState[id]){
+        // Já existia um iframe ativo nessa aba antes (troca de aba normal)
+        const iframe=document.createElement('iframe');
+        iframe.src=vpState[id].replace('autoplay=1','autoplay=0');
+        iframe.allow='accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+        iframe.allowFullscreen=true;
+        iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none';
+        cont.appendChild(iframe);
+      }else if(configsVideoCache[id]){
+        // Primeira visita a essa aba na sessão (vpState ainda vazio) — usa o vídeo salvo no banco
+        const vc=configsVideoCache[id];
+        const vid=embedId(vc.url);
+        if(vid)renderVideoPlayer(id,vid,vc.thumb||'');
+      }
     }
   }
-  if(id==='curso'&&vpState['curso']){
+  if(id==='curso'){
     const cont=document.getElementById('curso-player-cont');
     if(cont){
-      const iframe=document.createElement('iframe');
-      iframe.src=vpState['curso'].replace('autoplay=1','autoplay=0');
-      iframe.allow='accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
-      iframe.allowFullscreen=true;
-      iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none';
-      cont.appendChild(iframe);
+      if(vpState['curso']){
+        const iframe=document.createElement('iframe');
+        iframe.src=vpState['curso'].replace('autoplay=1','autoplay=0');
+        iframe.allow='accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+        iframe.allowFullscreen=true;
+        iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none';
+        cont.appendChild(iframe);
+      }else if(configsVideoCache['curso']){
+        const vc=configsVideoCache['curso'];
+        const vid=embedId(vc.url);
+        if(vid){
+          if(vc.thumb){
+            cont.innerHTML='<div class="vp-thumb" onclick="playVideoSecao(\'curso\',\''+vid+'\',this)"><img src="'+vc.thumb+'" alt="Thumbnail"><div class="vp-thumb-overlay"><div class="vp-play-circle"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div></div></div>';
+          }else{
+            cont.innerHTML='<iframe src="https://www.youtube.com/embed/'+vid+'?rel=0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:none"></iframe>';
+          }
+        }
+      }
     }
   }
 }
