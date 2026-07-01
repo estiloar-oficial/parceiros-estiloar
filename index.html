@@ -637,16 +637,6 @@ Como Parceiro Autorizado, sua empresa passa a fazer parte de um ecossistema que 
     <!-- ABA SERVIÇOS -->
     <div id="aba-servicos" style="display:none">
 
-      <!-- Vídeo do gestor -->
-      <div class="video-glow-wrap secao" style="overflow:hidden" id="vp-servicos" style="overflow:hidden">
-        <div style="background:#0a0a12;position:relative;padding-bottom:56.25%" id="vp-cont-servicos">
-          <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px" id="vp-ph-servicos">
-            <div class="cplay"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div>
-            <div class="chint">Gestor apresentando a tabela de serviços</div>
-          </div>
-        </div>
-      </div>
-
       <div class="sobre-box">
         <div class="sobre-titulo" id="txt-servicos-titulo">Tabela de mão de obra</div>
         <div class="sobre-texto" id="txt-servicos-corpo">Confira os valores de referência para os serviços de instalação e manutenção realizados pela Rede Credenciada Estilo AR.</div>
@@ -824,24 +814,6 @@ Como Parceiro Autorizado, sua empresa passa a fazer parte de um ecossistema que 
           </div>
         </div>
         <div class="ta-acs"><button class="btn sm g" onclick="salvarVideoSecao('beneficios')">▶ Salvar e aplicar</button></div>
-      </div>
-      <div class="texto-admin-card">
-        <div class="ta-label">🎬 Vídeo — Aba Serviços</div>
-        <input class="ta-input" style="min-height:auto" id="ed-vp-servicos" placeholder="https://youtube.com/watch?v=...">
-        <div class="campo-hint" style="margin-bottom:10px">Cole o link do YouTube. O vídeo aparece no topo da aba Serviços.</div>
-        <div style="margin-bottom:10px">
-          <div style="font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Thumbnail personalizada (opcional)</div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <img id="thumb-prev-servicos" src="" style="display:none;width:80px;height:45px;object-fit:cover;border-radius:6px;border:1px solid var(--borda)">
-            <label style="display:inline-flex;align-items:center;gap:6px;background:var(--cinza);border:1.5px dashed var(--borda);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--txt2)">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Upload thumbnail
-              <input type="file" accept="image/png,image/jpeg" style="display:none" onchange="uploadThumbSecao('servicos',this)">
-            </label>
-            <span style="font-size:11px;color:var(--txt2)">Recomendado: 1280×720px</span>
-          </div>
-        </div>
-        <div class="ta-acs"><button class="btn sm g" onclick="salvarVideoSecao('servicos')">▶ Salvar e aplicar</button></div>
       </div>
       <div class="texto-admin-card">
         <div class="ta-label">🎬 Vídeo — Aba Peças</div>
@@ -1599,7 +1571,7 @@ async function inicializarPortal(){
     }
 
     // Aplicar vídeos salvos
-    ['sobre','beneficios','pecas','treinamentos','servicos'].forEach(sec=>{
+    ['sobre','beneficios','pecas','treinamentos'].forEach(sec=>{
       const url=configs['video_'+sec];
       if(url){
         configsVideoCache[sec]={url:url,thumb:configs['thumb_'+sec]||''};
@@ -1916,7 +1888,7 @@ let configsVideoCache={};
 
 function aba(id,el){
   // Save current iframe srcs before destroying
-  ['sobre','beneficios','pecas','servicos','treinamentos'].forEach(function(sec){
+  ['sobre','beneficios','pecas','treinamentos'].forEach(function(sec){
     const cont=document.getElementById('vp-cont-'+sec);
     if(cont){
       const iframe=cont.querySelector('iframe');
@@ -1946,7 +1918,7 @@ function aba(id,el){
   if(id==='marketing')renderMarketingView();
 
   // Restore video for the tab being opened (without autoplay)
-  if(['sobre','beneficios','pecas','servicos','treinamentos'].includes(id)){
+  if(['sobre','beneficios','pecas','treinamentos'].includes(id)){
     const cont=document.getElementById('vp-cont-'+id);
     if(cont){
       if(vpState[id]){
@@ -3724,7 +3696,7 @@ function preencherCamposTextos(){
 function preencherCamposVideos(){
   // Preenche os campos com os dados já salvos no Supabase
   dbCarregarConfigs().then(function(configs){
-    ['sobre','beneficios','pecas','treinamentos','servicos'].forEach(function(sec){
+    ['sobre','beneficios','pecas','treinamentos'].forEach(function(sec){
       // Preenche o campo de link
       const input=document.getElementById('ed-vp-'+sec);
       if(input&&configs['video_'+sec])input.value=configs['video_'+sec];
