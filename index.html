@@ -3140,6 +3140,14 @@ function criarSenha(){
 // Handle auth state - detect invite vs normal login
 sbClient.auth.onAuthStateChange(function(event, session){
   console.log('Auth event:', event, session?session.user:null);
+
+  // Limpa o hash da URL (#access_token=...) imediatamente após processar
+  // Evita que o token seja reprocessado quando o parceiro navega entre páginas,
+  // o que causava o erro "New password should be different from the old password"
+  if(window.location.hash&&window.location.hash.includes('access_token')){
+    history.replaceState(null,null,window.location.pathname+window.location.search);
+  }
+
   if(!session||!session.user) return;
 
   const user=session.user;
