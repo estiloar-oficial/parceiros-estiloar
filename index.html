@@ -1495,7 +1495,7 @@ async function authConvidarParceiro(email, nome){
   const data=await r.json();
   if(!r.ok){
     console.error('Erro ao convidar parceiro:',data);
-    return null;
+    return data; // retorna o objeto de erro para que o chamador possa verificar a mensagem
   }
   console.log('Convite enviado:',data);
   return data;
