@@ -1504,7 +1504,7 @@ async function authConvidarParceiro(email, nome){
 
 async function authLogin(email, senha){
   const {data,error}=await sbClient.auth.signInWithPassword({email,password:senha});
-  if(error){console.error('Login error:',error.message);return null;}
+  if(error){console.error('Login error:',error.message);return {error:error.message};}
   return data;
 }
 
@@ -1551,6 +1551,29 @@ async function dbRemoverMembroDB(id){
 
 async function inicializarPortal(){
   try{
+    // Verifica se o membro está ativo no banco antes de carregar o portal
+    // Isso garante que parceiros bloqueados sejam deslogados mesmo com sessão ativa
+    const userResult=await sbClient.auth.getUser();
+    if(userResult&&userResult.data&&userResult.data.user){
+      const emailAtual=userResult.data.user.email;
+      const isAdmin=isAdminEmail(emailAtual);
+      if(!isAdmin){
+        const membroData=await sbFetch('membros?email=eq.'+encodeURIComponent(emailAtual)+'&select=status');
+        if(membroData&&membroData.length>0&&membroData[0].status==='inativo'){
+          // Parceiro bloqueado — faz logout forçado
+          await authLogout();
+          const lerro=document.getElementById('lerro');
+          if(lerro){lerro.textContent='Seu acesso está suspenso. Entre em contato com a Estilo AR.';lerro.style.display='block';}
+          document.getElementById('tela-login').style.display='flex';
+          document.getElementById('tela-portal').style.display='none';
+          document.getElementById('tela-admin').style.display='none';
+          document.getElementById('social-bar').style.display='none';
+          portalJaInicializado=false;portalInicializando=false;emailInicializado=null;
+          throw new Error('Acesso suspenso');
+        }
+      }
+    }
+
     const configs=await dbCarregarConfigs();
 
     // Aplicar textos salvos
@@ -1853,6 +1876,7 @@ function login(){
   const email=document.getElementById('ei').value.trim().toLowerCase();
   const senha=document.getElementById('si').value;
   const btnLogin=document.querySelector('.btn-login');
+  const lerro=document.getElementById('lerro');
   if(btnLogin)btnLogin.textContent='Entrando...';
   authLogin(email,senha).then(function(data){
     if(btnLogin)btnLogin.textContent='Entrar no portal';
@@ -1860,7 +1884,13 @@ function login(){
       const nome=data.user.user_metadata&&data.user.user_metadata.nome?data.user.user_metadata.nome:email.split('@')[0];
       aplicarUsuarioLogado(email,nome);
     }else{
-      document.getElementById('lerro').style.display='block';
+      const errMsg=(data&&data.error)||'';
+      if(errMsg.toLowerCase().includes('banned')||errMsg.toLowerCase().includes('ban')){
+        lerro.textContent='Seu acesso está suspenso. Entre em contato com a Estilo AR.';
+      }else{
+        lerro.textContent='E-mail ou senha incorretos.';
+      }
+      lerro.style.display='block';
     }
   });
 }
