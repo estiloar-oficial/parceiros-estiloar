@@ -2404,6 +2404,16 @@ function salvarEditMembro(){
   }
 }
 
+async function authResetarSenha(email){
+  const r=await fetch(SUPABASE_URL+'/functions/v1/resetar-senha',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_KEY},
+    body:JSON.stringify({email:email})
+  });
+  const data=await r.json();
+  return data;
+}
+
 function reenviarAcesso(btn){
   const tr=btn.closest('tr');
   const meEl=tr.querySelector('.me');
@@ -2413,9 +2423,21 @@ function reenviarAcesso(btn){
   if(!email){t('❌ E-mail não encontrado.');return;}
   if(!confirm('Reenviar link de acesso para '+email+'?'))return;
   t('Enviando...');
+  // Tenta convite primeiro (usuário sem senha)
+  // Se já tem conta com senha, chama reset de senha automaticamente
   authConvidarParceiro(email,nome).then(function(r){
     if(r&&r.success){
       t('✅ Link de acesso reenviado para '+email+'!');
+    }else if(r&&r.error&&r.error.toLowerCase().includes('already been registered')){
+      // Usuário já tem conta — envia link de recuperação de senha
+      authResetarSenha(email).then(function(r2){
+        if(r2&&r2.success){
+          t('✅ Link de redefinição de senha enviado para '+email+'!');
+        }else{
+          t('⚠️ Erro ao reenviar. Verifique o console.');
+          console.error('Erro authResetarSenha:',r2);
+        }
+      });
     }else{
       t('⚠️ Erro ao reenviar. Verifique o console.');
       console.error('Erro reenviarAcesso:',r);
