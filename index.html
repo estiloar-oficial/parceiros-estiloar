@@ -1038,8 +1038,9 @@ Participação em treinamentos, lives técnicas e atualizações constantes.</te
 <div class="mo" id="mo-edit-membro"><div class="modal">
   <h3>Editar membro</h3><p class="modal-sub">O e-mail não pode ser alterado aqui (está vinculado ao login do parceiro).</p>
   <input type="hidden" id="em-row-id">
+  <input type="hidden" id="em-email-antigo">
   <div class="campo"><label>Nome</label><input id="em-nome" placeholder="Ex: João Silva"></div>
-  <div class="campo"><label>E-mail (somente leitura)</label><input id="em-email" disabled style="background:var(--cinza);color:var(--txt2)"></div>
+  <div class="campo"><label>E-mail</label><input id="em-email" placeholder="email@empresa.com.br"><div class="campo-hint">Se alterar o e-mail, o acesso de login também será atualizado automaticamente.</div></div>
   <div class="campo"><label>Empresa</label><input id="em-emp" placeholder="Nome da empresa"></div>
   <div class="campo"><label>Cidade</label><input id="em-cidade" placeholder="Ex: São Paulo"></div>
   <div class="campo"><label>UF (estado)</label><select id="em-uf"><option value="">Selecione...</option><option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option></select></div>
@@ -1537,8 +1538,8 @@ async function dbRemoverAssistenciaPorNome(nomeEmpresa){
   const nome=nomeEmpresa.toUpperCase();
   return sbFetch('assistencias?nome=eq.'+encodeURIComponent(nome),'DELETE');
 }
-async function dbAtualizarMembro(id,nome,empresa,cidade,uf,endereco,tel){
-  return sbFetch('membros?id=eq.'+id,'PATCH',{nome,empresa,cidade,uf,endereco,tel});
+async function dbAtualizarMembro(id,nome,email,empresa,cidade,uf,endereco,tel){
+  return sbFetch('membros?id=eq.'+id,'PATCH',{nome,email,empresa,cidade,uf,endereco,tel});
 }
 async function dbAtualizarAssistenciaPorNomeAntigo(nomeAntigo,dados){
   if(!nomeAntigo)return;
@@ -2346,14 +2347,15 @@ function abrirEditarMembro(btn){
   const tr=btn.closest('tr');
   document.getElementById('em-row-id').value=tr.dataset.dbid||'';
   const meEl=tr.querySelector('.me');
+  const emailAtual=meEl?meEl.textContent.trim():'';
+  document.getElementById('em-email-antigo').value=emailAtual;
   document.getElementById('em-nome').value=tr.dataset.nome||'';
-  document.getElementById('em-email').value=meEl?meEl.textContent.trim():'';
+  document.getElementById('em-email').value=emailAtual;
   document.getElementById('em-emp').value=tr.dataset.empresa||'';
   document.getElementById('em-cidade').value=tr.dataset.cidade||'';
   document.getElementById('em-uf').value=tr.dataset.uf||'';
   document.getElementById('em-endereco').value=tr.dataset.endereco||'';
   document.getElementById('em-tel').value=tr.dataset.tel||'';
-  // Guarda referência da linha e do nome de empresa ANTIGO (para sincronizar/renomear em assistencias)
   window._editMembroTr=tr;
   window._editMembroEmpresaAntiga=tr.dataset.empresa||'';
   abrirMo('mo-edit-membro');
@@ -2361,13 +2363,16 @@ function abrirEditarMembro(btn){
 
 function salvarEditMembro(){
   const dbId=document.getElementById('em-row-id').value;
+  const emailAntigo=document.getElementById('em-email-antigo').value.trim();
   const nome=document.getElementById('em-nome').value.trim();
+  const emailNovo=document.getElementById('em-email').value.trim().toLowerCase();
   const emp=document.getElementById('em-emp').value.trim();
   const cidade=document.getElementById('em-cidade').value.trim();
   const uf=document.getElementById('em-uf').value.trim();
   const endereco=document.getElementById('em-endereco').value.trim();
   const tel=document.getElementById('em-tel').value.trim();
   if(!nome){t('❌ O nome não pode ficar vazio.');return;}
+  if(!emailNovo){t('❌ O e-mail não pode ficar vazio.');return;}
   if(!cidade||!uf||!endereco||!tel){t('❌ Cidade, UF, Endereço e Telefone são obrigatórios.');return;}
 
   const tr=window._editMembroTr;
@@ -2377,6 +2382,7 @@ function salvarEditMembro(){
   if(tr){
     tr.dataset.nome=nome;tr.dataset.empresa=emp;tr.dataset.cidade=cidade;tr.dataset.uf=uf;tr.dataset.endereco=endereco;tr.dataset.tel=tel;
     const mnEl=tr.querySelector('.mn');if(mnEl)mnEl.textContent=nome;
+    const meEl2=tr.querySelector('.me');if(meEl2)meEl2.textContent=emailNovo;
     const empTd=tr.children[1];if(empTd)empTd.textContent=emp||'—';
     const cidTd=tr.children[2];if(cidTd)cidTd.textContent=(cidade||'—')+(uf?' — '+uf:'');
   }
@@ -2384,23 +2390,36 @@ function salvarEditMembro(){
   t('Salvando alterações...');
 
   // Atualiza no banco (tabela membros)
-  if(dbId)dbAtualizarMembro(dbId,nome,emp,cidade,uf,endereco,tel);
+  if(dbId)dbAtualizarMembro(dbId,nome,emailNovo,emp,cidade,uf,endereco,tel);
 
-  // Sincroniza com assistencias: se o nome da empresa mudou, precisa atualizar pelo nome ANTIGO
-  // (já que é a única forma de localizar o registro correspondente, sem id direto vinculado)
-  if(empresaAntiga&&empresaAntiga!=='—'){
-    dbAtualizarAssistenciaPorNomeAntigo(empresaAntiga,{
-      nome:(emp||nome).toUpperCase(),cidade,uf,endereco,tel
-    }).then(function(){
-      t('✅ Membro atualizado!');
-    });
-  }else if(emp){
-    // Não existia registro em assistencias antes (empresa estava vazia) — cria um novo agora
-    dbAdicionarAssistencia(emp,cidade,uf,endereco,tel).then(function(){
-      t('✅ Membro atualizado!');
+  // Se o e-mail mudou, atualiza também no Supabase Auth
+  if(emailNovo!==emailAntigo){
+    fetch(SUPABASE_URL+'/functions/v1/atualizar-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_KEY},
+      body:JSON.stringify({email_antigo:emailAntigo,email_novo:emailNovo})
+    }).then(function(r){return r.json();}).then(function(data){
+      if(data.success){
+        if(data.action==='updated')t('✅ Membro e e-mail de acesso atualizados!');
+        else t('✅ Membro atualizado!');
+      }else{
+        t('⚠️ Membro atualizado, mas erro ao atualizar e-mail no Auth.');
+        console.error('Erro atualizar-email:',data);
+      }
     });
   }else{
-    t('✅ Membro atualizado!');
+    // Sincroniza com assistencias
+    if(empresaAntiga&&empresaAntiga!=='—'){
+      dbAtualizarAssistenciaPorNomeAntigo(empresaAntiga,{nome:(emp||nome).toUpperCase(),cidade,uf,endereco,tel}).then(function(){
+        t('✅ Membro atualizado!');
+      });
+    }else if(emp){
+      dbAdicionarAssistencia(emp,cidade,uf,endereco,tel).then(function(){
+        t('✅ Membro atualizado!');
+      });
+    }else{
+      t('✅ Membro atualizado!');
+    }
   }
 }
 
