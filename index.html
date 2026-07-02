@@ -2428,19 +2428,23 @@ function reenviarAcesso(btn){
   authConvidarParceiro(email,nome).then(function(r){
     if(r&&r.success){
       t('✅ Link de acesso reenviado para '+email+'!');
-    }else if(r&&r.error&&r.error.toLowerCase().includes('already been registered')){
-      // Usuário já tem conta — envia link de recuperação de senha
-      authResetarSenha(email).then(function(r2){
-        if(r2&&r2.success){
-          t('✅ Link de redefinição de senha enviado para '+email+'!');
-        }else{
-          t('⚠️ Erro ao reenviar. Verifique o console.');
-          console.error('Erro authResetarSenha:',r2);
-        }
-      });
     }else{
-      t('⚠️ Erro ao reenviar. Verifique o console.');
-      console.error('Erro reenviarAcesso:',r);
+      // Verifica se o erro é de usuário já cadastrado (tem senha) — tenta reset de senha
+      const errMsg=(r&&r.error&&typeof r.error==='object'?r.error.error:r&&r.error)||'';
+      if(errMsg.toLowerCase().includes('already been registered')){
+        // Usuário já tem conta — envia link de recuperação de senha
+        authResetarSenha(email).then(function(r2){
+          if(r2&&r2.success){
+            t('✅ Link de redefinição de senha enviado para '+email+'!');
+          }else{
+            t('⚠️ Erro ao reenviar. Verifique o console.');
+            console.error('Erro authResetarSenha:',r2);
+          }
+        });
+      }else{
+        t('⚠️ Erro ao reenviar. Verifique o console.');
+        console.error('Erro reenviarAcesso:',r);
+      }
     }
   });
 }
