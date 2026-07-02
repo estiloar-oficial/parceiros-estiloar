@@ -3142,8 +3142,6 @@ sbClient.auth.onAuthStateChange(function(event, session){
   console.log('Auth event:', event, session?session.user:null);
 
   // Limpa o hash da URL (#access_token=...) imediatamente após processar
-  // Evita que o token seja reprocessado quando o parceiro navega entre páginas,
-  // o que causava o erro "New password should be different from the old password"
   if(window.location.hash&&window.location.hash.includes('access_token')){
     history.replaceState(null,null,window.location.pathname+window.location.search);
   }
@@ -3152,16 +3150,28 @@ sbClient.auth.onAuthStateChange(function(event, session){
 
   const user=session.user;
 
-  // Detect invite using invited_at field
-  // If invited_at exists AND confirmed_at is very close to last_sign_in_at = first access via invite
+  // Se o evento é USER_UPDATED, a senha acabou de ser criada com sucesso.
+  // Marca no sessionStorage que já criou a senha e vai direto pro portal.
+  if(event==='USER_UPDATED'){
+    sessionStorage.setItem('senha_criada_'+user.id, '1');
+    const email=user.email;
+    const nome=user.user_metadata&&user.user_metadata.nome?user.user_metadata.nome:email.split('@')[0];
+    aplicarUsuarioLogado(email,nome);
+    return;
+  }
+
+  // Verifica se a senha já foi criada nesta sessão (evita loop da tela de criar senha)
+  const senhaCriada=sessionStorage.getItem('senha_criada_'+user.id);
+
+  // Detecta primeiro acesso via convite:
+  // tem invited_at E confirmed_at muito próximo de last_sign_in_at (dentro de 5s)
+  // E a senha ainda não foi criada nesta sessão
   const invitedAt=user.invited_at?new Date(user.invited_at).getTime():0;
   const confirmedAt=user.confirmed_at?new Date(user.confirmed_at).getTime():0;
   const lastSignIn=user.last_sign_in_at?new Date(user.last_sign_in_at).getTime():0;
-  
-  // First access: has invited_at AND confirmed_at equals last_sign_in_at (within 5 seconds)
-  const isFirstAccess=invitedAt>0&&confirmedAt>0&&Math.abs(confirmedAt-lastSignIn)<5000;
-  
-  console.log('invitedAt:', user.invited_at, 'isFirstAccess:', isFirstAccess);
+  const isFirstAccess=!senhaCriada&&invitedAt>0&&confirmedAt>0&&Math.abs(confirmedAt-lastSignIn)<5000;
+
+  console.log('invitedAt:', user.invited_at, 'isFirstAccess:', isFirstAccess, 'senhaCriada:', senhaCriada);
 
   if(isFirstAccess){
     console.log('First invite access - showing password creation screen');
@@ -3169,12 +3179,10 @@ sbClient.auth.onAuthStateChange(function(event, session){
     return;
   }
 
-  // Normal login
+  // Login normal
   if(event==='SIGNED_IN'||event==='INITIAL_SESSION'){
     const email=user.email;
-    const nome=user.user_metadata&&user.user_metadata.nome
-      ?user.user_metadata.nome
-      :email.split('@')[0];
+    const nome=user.user_metadata&&user.user_metadata.nome?user.user_metadata.nome:email.split('@')[0];
     aplicarUsuarioLogado(email,nome);
   }
 });
