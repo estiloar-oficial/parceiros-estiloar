@@ -435,6 +435,108 @@ table.pa tr:hover td{background:var(--cinza)}
 .foto-thumb img{width:100%;height:100%;object-fit:cover}
 .toast{position:fixed;bottom:48px;right:24px;background:#1A2340;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s}
 .toast.show{transform:translateY(0);opacity:1}
+/* ── RESPONSIVO MOBILE — Portal do Parceiro ─────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* NAVBAR */
+  .navbar { padding: 0 12px; height: auto; flex-wrap: wrap; gap: 0; }
+  .nb-marca { padding: 10px 0; }
+  .nb-sep { display: none; }
+  .nb-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    width: 100%;
+    padding: 6px 0 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nb-links::-webkit-scrollbar { display: none; }
+  .nl { font-size: 11px; padding: 5px 8px; white-space: nowrap; }
+  .nb-right { padding: 6px 0 8px; }
+  .unm { display: none; }
+
+  /* HERO */
+  .hero { padding: 16px 0 12px; }
+  .hero-in { flex-direction: column; padding: 0 16px; gap: 12px; }
+  .htit { font-size: 18px; }
+  .hsub { font-size: 12px; }
+  .hstats { gap: 16px; }
+  .hstat-n { font-size: 20px; }
+
+  /* CONTEÚDO GERAL */
+  .conteudo { padding: 16px 12px 40px; }
+
+  /* SOBRE — vídeo + texto */
+  .sobre-box { padding: 16px 0; }
+  .sobre-titulo { font-size: 18px; }
+  .sobre-texto { font-size: 13px; }
+
+  /* KIT VISUAL — 3 colunas → 1 coluna */
+  .kv-itens { grid-template-columns: 1fr; }
+
+  /* GARANTIA */
+  .garantia-card { flex-direction: column; gap: 14px; padding: 18px 16px; }
+
+  /* PEÇAS — kits grid 3 colunas → 1 coluna */
+  .kits-grid { grid-template-columns: 1fr; }
+
+  /* TABELA DE SERVIÇOS */
+  .tp-header { flex-direction: column; gap: 8px; align-items: flex-start; }
+  .tp-precos { flex-wrap: wrap; gap: 10px; }
+  table { font-size: 12px; }
+  th, td { padding: 8px 6px; }
+
+  /* TABELA DE PEÇAS — scroll horizontal no mobile */
+  .tabela-pecas-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tabela-pecas-wrap table { min-width: 480px; }
+
+  /* MÓDULOS — grid 3 colunas → 1 coluna */
+  .mods-grid { grid-template-columns: 1fr; }
+
+  /* PLAYER DE TREINAMENTO — lado a lado → empilhado */
+  #player-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .player-card { width: 100%; }
+  .vlista { width: 100%; }
+
+  /* SUPORTE — info grid 2 colunas → 1 coluna */
+  .info-grid { grid-template-columns: 1fr; }
+
+  /* VÍDEOS — aspect ratio responsivo */
+  .video-glow-wrap { margin: 0 0 16px; }
+
+  /* BARRA SOCIAL */
+  .social-bar { flex-wrap: wrap; gap: 6px; padding: 10px 12px; justify-content: center; }
+  .social-bar a { font-size: 12px; padding: 6px 10px; }
+
+  /* MODULO SELECIONADO */
+  #mod-selecionado-card > div { padding: 12px 14px !important; }
+
+  /* DOCUMENTOS */
+  .doc-item { flex-wrap: wrap; gap: 8px; }
+  .doc-btn { width: 100%; justify-content: center; }
+
+  /* LOGIN */
+  .login-card { padding: 32px 20px; margin: 16px; }
+
+  /* TELA CRIAR/REDEFINIR SENHA */
+  #tela-criar-senha > div,
+  #tela-redefinir-senha > div { padding: 32px 20px; margin: 16px; }
+
+}
+
+@media (max-width: 480px) {
+  .htit { font-size: 16px; }
+  .nl { font-size: 10px; padding: 4px 7px; }
+  .mods-grid { grid-template-columns: 1fr; }
+  .kits-grid { grid-template-columns: 1fr; }
+  .kv-itens { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -624,7 +726,7 @@ Como Parceiro Autorizado, sua empresa passa a fazer parte de um ecossistema que 
       </div>
       <div id="area-player" style="display:none">
         <div class="stit" id="pl-mod-nm">Módulo</div>
-        <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
+        <div id="player-grid" style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
           <div class="player-card">
             <div class="pv" id="pl-cont"><div class="pv-ph"><div class="pbig"><svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9"/></svg></div><div class="phint">Selecione um vídeo</div></div></div>
             <div class="pm"><h3 id="pl-tit">Selecione um vídeo</h3><p id="pl-sub">Clique na lista ao lado</p></div>
